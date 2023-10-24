@@ -12,9 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
-import ru.yandex.practicum.filmorate.exception.FilmrateValidationException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.io.IOException;
@@ -30,10 +28,12 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private UserController userController;
+
     @BeforeEach
     void setUp() {
         userController = new UserController();
     }
+
     @Test
     void createTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
@@ -43,6 +43,7 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.content()
                         .json(getContentFromFile("controller/request/user.json")));
     }
+
     @Test
     void createTestNegative() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
