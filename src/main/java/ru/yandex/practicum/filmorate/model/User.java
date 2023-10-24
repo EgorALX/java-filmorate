@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class User extends BaseUnit {
 
-    @NotEmpty
     @NotBlank
     private String Email;
 
