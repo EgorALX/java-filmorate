@@ -14,10 +14,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class User extends BaseUnit {
 
-    @NotEmpty
-    private String Email;
+    @NotBlank
+    @Email
+    private String email;
 
-    @NotEmpty
+    @NotBlank
     private String login;
 
     private String name;
