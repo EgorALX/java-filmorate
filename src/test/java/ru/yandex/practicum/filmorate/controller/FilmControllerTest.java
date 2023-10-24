@@ -39,8 +39,8 @@ public class FilmControllerTest {
     @Test
     void createTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getContentFromFile("controller/request/film.json")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getContentFromFile("controller/request/film.json")))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content()
                         .json(getContentFromFile("controller/response/film.json")));
@@ -73,7 +73,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1800, 1, 1))
                 .duration(100)
                 .build();
-        Assertions.assertThrows(FilmrateValidationException.class, ()-> filmController.validate(film));
+        Assertions.assertThrows(FilmrateValidationException.class, ()->filmController.validate(film));
     }
 
     private String getContentFromFile(String filename) {
