@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
-public class Film extends BaseUnit{
+public class Film extends BaseUnit {
 
     @NotBlank
     private String name;
