@@ -17,7 +17,7 @@ public class User extends BaseUnit {
     @NotEmpty
     private String Email;
 
-    @NotBlank
+    @NotEmpty
     private String login;
 
     private String name;
