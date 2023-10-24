@@ -73,7 +73,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1800, 1, 1))
                 .duration(100)
                 .build();
-        Assertions.assertThrows(FilmrateValidationException.class, ()->filmController.validate(film));
+        Assertions.assertThrows(FilmrateValidationException.class, () -> filmController.validate(film));
     }
 
     private String getContentFromFile(String filename) {
