@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmrateValidationException;
+import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -32,6 +34,9 @@ public class UserController extends BaseController<User> {
 
     @Override
     public void validate(User data) {
+        if (!data.getEmail().contains("@") || data.getEmail().isBlank()) {
+            throw new UserValidationException("User email is invalid");
+        }
         if (data.getName().isBlank()) {
             data.setName(data.getLogin());
         }
