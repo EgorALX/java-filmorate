@@ -33,11 +33,11 @@ public class UserController extends BaseController<User> {
 
     @Override
     public void validate(User data) {
+        if (data.getName() == null || data.getName().isBlank()) {
+            data.setName(data.getLogin());
+        }
         if (!data.getEmail().contains("@") || data.getEmail().isBlank()) {
             throw new UserValidationException("User email is invalid");
-        }
-        if (data.getName().isBlank()) {
-            data.setName(data.getLogin());
         }
     }
 }
