@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/films")
-public class FilmController extends BaseController<Film>{
+public class FilmController extends BaseController <Film> {
 
     private final static LocalDate START_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
@@ -29,7 +29,7 @@ public class FilmController extends BaseController<Film>{
     }
 
     @GetMapping
-    public List<Film> getAll(@Valid @RequestBody Film film) {
+    public List <Film> getAll(@Valid @RequestBody Film film) {
         log.info("Getting all films {}", film);
         return super.getAll();
     }

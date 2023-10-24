@@ -10,7 +10,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/users")
-public class UserController extends BaseController<User>{
+public class UserController extends BaseController<User> {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
