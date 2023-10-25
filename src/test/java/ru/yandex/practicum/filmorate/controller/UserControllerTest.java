@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class UserControllerTest {
                 .email("mail@yandex.ru")
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
-        userController.validate(user);
+        Component.validateUser(user);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class UserControllerTest {
                 .email("mailyandex.ru")
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
-        Assertions.assertThrows(UserValidationException.class, () -> userController.validate(user));
+        Assertions.assertThrows(ValidationException.class, () -> Component.validateUser(user));
     }
 
     private String getContentFromFile(String filename) {

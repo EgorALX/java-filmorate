@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
-import ru.yandex.practicum.filmorate.exception.FilmrateValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1900, 1, 1))
                 .duration(100)
                 .build();
-        filmController.validate(film);
+        Component.validateFilm(film);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1800, 1, 1))
                 .duration(100)
                 .build();
-        Assertions.assertThrows(FilmrateValidationException.class, () -> filmController.validate(film));
+        Assertions.assertThrows(ValidationException.class, () -> Component.validateFilm(film));
     }
 
     private String getContentFromFile(String filename) {
