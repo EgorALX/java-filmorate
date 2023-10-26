@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @Builder
 public class User {
 
-    @Positive
-    @Min(1)
     private Long id;
 
     @NotBlank
@@ -27,4 +25,10 @@ public class User {
 
     @PastOrPresent
     private LocalDate birthday;
+
+    public void nameChange() {
+        if (name == null || name.isBlank()) {
+            name = login;
+        }
+    }
 }

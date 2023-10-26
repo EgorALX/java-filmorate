@@ -30,6 +30,7 @@ public class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private FilmController filmController;
+    private ValidateService validateService = new ValidateService();
 
     @BeforeEach
     void setUp() {
@@ -58,11 +59,12 @@ public class FilmControllerTest {
     void validateTest() {
         Film film = Film.builder()
                 .name("Name")
+                .id(1L)
                 .description("Description")
                 .releaseDate(LocalDate.of(1900, 1, 1))
                 .duration(100)
                 .build();
-        Component.validateFilm(film);
+        validateService.validateFilm(film);
     }
 
     @Test
@@ -73,7 +75,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1800, 1, 1))
                 .duration(100)
                 .build();
-        Assertions.assertThrows(ValidationException.class, () -> Component.validateFilm(film));
+        Assertions.assertThrows(ValidationException.class, () -> validateService.validateFilm(film));
     }
 
     private String getContentFromFile(String filename) {

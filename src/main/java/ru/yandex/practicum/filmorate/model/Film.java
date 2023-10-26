@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @Builder
 public class Film {
 
-    @Positive
-    @Min(1)
     private Long id;
 
     @NotBlank

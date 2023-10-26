@@ -1,5 +1,6 @@
 {
   "name": "Name nname",
   "description": "descr",
-  "duration": 100
+  "duration": 100,
+  "id": 1
 }

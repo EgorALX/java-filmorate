@@ -28,6 +28,7 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private UserController userController;
+    private ValidateService validateService = new ValidateService();
 
     @BeforeEach
     void setUp() {
@@ -56,11 +57,12 @@ public class UserControllerTest {
     void validateTest() {
         User user = User.builder()
                 .name("Name")
+                .id(1L)
                 .login("login")
                 .email("mail@yandex.ru")
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
-        Component.validateUser(user);
+        validateService.validateUser(user);
     }
 
     @Test
@@ -68,10 +70,10 @@ public class UserControllerTest {
         User user = User.builder()
                 .name("Name")
                 .login("login")
-                .email("mailyandex.ru")
+                .email("mail@yandex.ru")
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
-        Assertions.assertThrows(ValidationException.class, () -> Component.validateUser(user));
+        Assertions.assertThrows(ValidationException.class, () -> validateService.validateUser(user));
     }
 
     private String getContentFromFile(String filename) {

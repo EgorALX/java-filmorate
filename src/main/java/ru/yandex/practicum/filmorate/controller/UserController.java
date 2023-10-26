@@ -19,15 +19,14 @@ public class UserController {
     private final Map<Long, User> storage = new HashMap<>();
 
     private long generateId;
+    private ValidateService validateService = new ValidateService();
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("Creating user {}", user);
-        Component.validateUser(user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
         user.setId(++generateId);
+        validateService.validateUser(user);
+        user.nameChange();
         storage.put(user.getId(), user);
         return user;
     }
@@ -35,13 +34,11 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("Updating user {}", user);
-        if ((!storage.containsKey(user.getId())) || (user.getId() == null)) {
+        validateService.validateUser(user);
+        if (!storage.containsKey(user.getId())) {
             throw new NotFoundException(String.format("Data %s not found", user));
         }
-        Component.validateUser(user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        user.nameChange();
         storage.put(user.getId(), user);
         return user;
     }

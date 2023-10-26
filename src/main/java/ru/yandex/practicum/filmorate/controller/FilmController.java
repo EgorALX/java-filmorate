@@ -17,14 +17,15 @@ import java.util.Map;
 public class FilmController {
 
     private final Map<Long, Film> storage = new HashMap<>();
+    private ValidateService validateService = new ValidateService();
 
     private long generateId;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Creating film {}", film);
-        Component.validateFilm(film);
         film.setId(++generateId);
+        validateService.validateFilm(film);
         storage.put(film.getId(), film);
         return film;
     }
@@ -32,10 +33,10 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("Updating film {}", film);
-        if ((!storage.containsKey(film.getId())) || (film.getId() == null)) {
+        validateService.validateFilm(film);
+        if (!storage.containsKey(film.getId())) {
             throw new NotFoundException(String.format("Data %s not found", film));
         }
-        Component.validateFilm(film);
         storage.put(film.getId(), film);
         return film;
     }
