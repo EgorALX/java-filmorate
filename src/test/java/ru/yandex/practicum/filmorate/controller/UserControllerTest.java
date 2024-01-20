@@ -14,6 +14,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.ValidateService;
+import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +35,7 @@ public class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test

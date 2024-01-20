@@ -14,6 +14,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.ValidateService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,10 +36,11 @@ public class FilmControllerTest {
     private MockMvc mockMvc;
     private FilmController filmController;
     private ValidateService validateService = new ValidateService();
+    private final FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController();
+        filmController = new FilmController(filmService);
     }
 
     @Test

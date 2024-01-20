@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class ValidateService {
     public void validateFilm(Film film) {
         LocalDate startReleaseDate = LocalDate.of(1895, 12, 28);
-        if ((film.getId() == null) || film.getReleaseDate().isBefore(startReleaseDate)) {
+        if (film.getReleaseDate().isBefore(startReleaseDate)) {
             throw new ValidationException("Film release date is invalid");
         }
     }
