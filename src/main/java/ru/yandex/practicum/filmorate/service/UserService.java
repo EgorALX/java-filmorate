@@ -1,19 +1,21 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor()
+@RequiredArgsConstructor
 public class UserService {
-    private final InMemoryUserStorage storage;
+    private final UserStorage storage = new InMemoryUserStorage();
 
     public User create(User user) {
         return storage.create(user);
@@ -42,13 +44,11 @@ public class UserService {
         return true;
     }
 
-    public User deleteFriend(Long id, Long userId) {
+    public void deleteFriend(Long id, Long userId) {
         if ((storage.getById(id) == null) || (storage.getById(userId) == null)) {
             throw new NotFoundException("User not found");
         }
-        User user = storage.getById(id);
-        user.getFriends().remove(userId);
-        return user;
+        storage.getById(id).getFriends().remove(userId);
     }
 
     public List<User> getUserFriends(Long id) {

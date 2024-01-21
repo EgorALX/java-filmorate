@@ -4,18 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor()
+@RequiredArgsConstructor
 public class FilmService {
-    private final InMemoryFilmStorage filmStorage;
+
     private final InMemoryUserStorage userStorage;
+    private FilmStorage filmStorage = new InMemoryFilmStorage();
 
     public Film create(Film film) {
         return filmStorage.create(film);
@@ -51,12 +54,12 @@ public class FilmService {
         return film;
     }
 
-    public Film deleteLikeOnFilm(Long id, Long userId) {
-        if (filmStorage.getById(id) == null || userStorage.getById(userId) == null) {
+    public void deleteLikeOnFilm(Long id, Long userId) {
+        System.out.println(filmStorage.getAll());
+        System.out.println(userStorage.getAll());
+        if (filmStorage.getById(id) == null || (userStorage.getById(userId)) == null) {
             throw new NotFoundException("Film not found");
         }
-        Film film = filmStorage.getById(id);
-        film.getLikes().remove(userId);
-        return film;
+        filmStorage.getById(id).getLikes().remove(userId);
     }
 }

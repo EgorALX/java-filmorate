@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,6 +21,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film create(@Valid @RequestBody Film film) {
         log.info("Creating film {}", film);
         return filmService.create(film);
@@ -62,10 +65,9 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteLikeOnFilm(@PathVariable Long id, @PathVariable Long userId) {
-        Film film = filmService.deleteLikeOnFilm(id, userId);
-        log.info("Putting like on film {}", film);
-        return film;
+    public void deleteLikeOnFilm(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.deleteLikeOnFilm(id, userId);
+        log.info("Putting like by user {} on film {}", id, userId);
     }
 }
 

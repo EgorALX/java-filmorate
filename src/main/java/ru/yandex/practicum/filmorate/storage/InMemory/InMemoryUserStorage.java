@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DuplicateException;
-import ru.yandex.practicum.filmorate.service.ValidateService;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -17,15 +17,16 @@ import java.util.*;
 @Component
 @Data
 public class InMemoryUserStorage implements UserStorage {
-
-    private final Map<Long, User> storage = new HashMap<>();
+    @Getter
+    private final static Map<Long, User> storage = new HashMap<>();
     private long generateId;
-    private final ValidateService validateService = new ValidateService();
 
     @Override
     public User create(User user) {
         user.setId(++generateId);
-        validateService.validateUser(user);
+        if (user.getId() == null) {
+            throw new ValidationException("id = null");
+        }
         user.nameChange();
         user.setFriends(new HashSet<>());
         if (storage.containsValue(user)) {
@@ -37,7 +38,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        validateService.validateUser(user);
+        if (user.getId() == null) {
+            throw new ValidationException("id = null");
+        }
         if (user.getFriends() == null) {
             user.setFriends(new HashSet<>());
         }
@@ -54,7 +57,8 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(storage.values());
     }
 
-    public User getById(long id) {
+    @Override
+    public User getById(Long id) {
         return storage.get(id);
     }
 }

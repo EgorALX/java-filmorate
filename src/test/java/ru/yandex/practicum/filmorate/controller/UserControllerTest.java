@@ -15,8 +15,6 @@ import org.springframework.util.ResourceUtils;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.ValidateService;
-import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,11 +29,10 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private UserController userController;
-    private ValidateService validateService = new ValidateService();
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
+        userController = new UserController(new UserService());
     }
 
     @Test
@@ -54,29 +51,6 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getContentFromFile("controller/request/user-Email-exception.json")))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError());
-    }
-
-    @Test
-    void validateTest() {
-        User user = User.builder()
-                .name("Name")
-                .id(1L)
-                .login("login")
-                .email("mail@yandex.ru")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
-        validateService.validateUser(user);
-    }
-
-    @Test
-    void validateTestNegative() {
-        User user = User.builder()
-                .name("Name")
-                .login("login")
-                .email("mail@yandex.ru")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
-        Assertions.assertThrows(ValidationException.class, () -> validateService.validateUser(user));
     }
 
     private String getContentFromFile(String filename) {

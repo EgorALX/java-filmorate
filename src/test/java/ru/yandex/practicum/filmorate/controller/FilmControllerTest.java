@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +11,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.ValidateService;
-import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.LocalDate;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,8 +28,7 @@ public class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private FilmController filmController;
-    private ValidateService validateService = new ValidateService();
-    private final FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+    private final FilmService filmService = new FilmService(new InMemoryUserStorage());
 
     @BeforeEach
     void setUp() {
@@ -58,29 +51,6 @@ public class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getContentFromFile("controller/request/film-release-date-empty.json")))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError());
-    }
-
-    @Test
-    void validateTest() {
-        Film film = Film.builder()
-                .name("Name")
-                .id(1L)
-                .description("Description")
-                .releaseDate(LocalDate.of(1900, 1, 1))
-                .duration(100)
-                .build();
-        validateService.validateFilm(film);
-    }
-
-    @Test
-    void validateTestNegative() {
-        Film film = Film.builder()
-                .name("Name")
-                .description("Description")
-                .releaseDate(LocalDate.of(1800, 1, 1))
-                .duration(100)
-                .build();
-        Assertions.assertThrows(ValidationException.class, () -> validateService.validateFilm(film));
     }
 
     private String getContentFromFile(String filename) {

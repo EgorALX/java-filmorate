@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,9 +18,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final ValidateService validateService = new ValidateService();
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@Valid @RequestBody User user) {
         User newUser = userService.create(user);
         log.info("Creating user {}", newUser);
@@ -58,10 +58,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        User user = userService.deleteFriend(id, friendId);
-        log.info("Putting like on film {}", user);
-        return user;
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.deleteFriend(id, friendId);
+        log.info("Deleting a friend {} from a user {}",friendId, id);
     }
 
     @GetMapping("/{id}/friends")
