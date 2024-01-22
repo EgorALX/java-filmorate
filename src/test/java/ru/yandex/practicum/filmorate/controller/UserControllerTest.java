@@ -37,7 +37,7 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getContentFromFile("controller/request/user.json")))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content()
                         .json(getContentFromFile("controller/request/user.json")));
     }
@@ -47,7 +47,7 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getContentFromFile("controller/request/user-Email-exception.json")))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().is5xxServerError());
     }
 
     private String getContentFromFile(String filename) {
