@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -31,9 +30,6 @@ public class FilmService {
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Film release date is invalid");
-        }
-        if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
         }
         return filmStorage.update(film);
     }

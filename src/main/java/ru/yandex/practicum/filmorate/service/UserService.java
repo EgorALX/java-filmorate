@@ -6,8 +6,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -25,9 +23,6 @@ public class UserService {
     public User update(User user) {
         if (user.getId() == null || storage.getById(user.getId()) == null) {
             throw new NotFoundException("User not found");
-        }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
         }
         user.nameChange();
         return storage.update(user);
@@ -68,9 +63,6 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        if (storage.getById(id).getFriends().isEmpty() || storage.getById(otherId).getFriends().isEmpty()) {
-            return new ArrayList<>();
-        }
         return storage.getCommonFriends(id, otherId);
     }
 }

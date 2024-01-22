@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
@@ -25,8 +24,6 @@ public class User {
 
     @PastOrPresent
     private LocalDate birthday;
-
-    private HashSet<Long> friends;
 
     public void nameChange() {
         if (name == null || name.isBlank()) {

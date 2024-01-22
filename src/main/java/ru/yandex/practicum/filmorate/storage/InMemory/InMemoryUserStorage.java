@@ -15,22 +15,23 @@ import java.util.stream.Collectors;
 @Component
 @Data
 public class InMemoryUserStorage implements UserStorage {
-    @Getter
     private final Map<Long, User> storage = new HashMap<>();
+    private final Map<Long, HashSet<Long>> friends = new HashMap<Long, HashSet<Long>>();
     private long generateId;
 
     @Override
     public User create(User user) {
         user.setId(++generateId);
         user.nameChange();
-        user.setFriends(new HashSet<>());
         storage.put(user.getId(), user);
+        friends.put(user.getId(), new HashSet<>());
         return user;
     }
 
     @Override
     public User update(User user) {
         storage.put(user.getId(), user);
+        friends.put(user.getId(), new HashSet<>());
         return user;
     }
 
@@ -46,31 +47,34 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Boolean putNewFriend(Long id, Long userId) {
-        storage.get(id).getFriends().add(userId);
-        storage.get(userId).getFriends().add(id);
+        friends.get(id).add(userId);
+        friends.get(userId).add(id);
         return true;
     }
 
     @Override
     public void deleteFriend(Long id, Long userId) {
-        storage.get(id).getFriends().remove(userId);
+        friends.get(id).remove(userId);
+        friends.get(userId).remove(id);
     }
 
     @Override
     public List<User> getUserFriends(Long id) {
-        List<User> friends = new ArrayList<>();
-        User user = storage.get(id);
-        for (Long userId : user.getFriends()) {
-            friends.add(storage.get(userId));
+        List<User> friendsList = new ArrayList<>();
+        for (Long userId : friends.get(id)) {
+            friendsList.add(storage.get(userId));
         }
-        return friends;
+        return friendsList;
     }
 
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
+        if (friends.get(id).isEmpty() || friends.get(otherId).isEmpty()) {
+            return new ArrayList<>();
+        }
         List<User> commonFriends = new ArrayList<>();
-        List<Long> commonFriendsId = storage.get(id).getFriends().stream()
-                .filter(userId -> storage.get(otherId).getFriends().contains(userId))
+        List<Long> commonFriendsId = friends.get(id).stream()
+                .filter(userId -> friends.get(otherId).contains(userId))
                 .collect(Collectors.toList());
         for (Long userId : commonFriendsId) {
             commonFriends.add(storage.get(userId));

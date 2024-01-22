@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -42,11 +41,7 @@ public class FilmController {
     @GetMapping("/{id}")
     public Film getById(@PathVariable Long id) {
         log.info("Getting film");
-        Film film = filmService.getById(id);
-        if (film == null) {
-            throw new NotFoundException("Data not found");
-        }
-        return film;
+        return filmService.getById(id);
     }
 
     @GetMapping("/popular")
@@ -68,5 +63,3 @@ public class FilmController {
         filmService.deleteLikeOnFilm(id, userId);
     }
 }
-
-

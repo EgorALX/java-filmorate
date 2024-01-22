@@ -14,21 +14,22 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> storage = new HashMap<>();
+    private final Map<Long, HashSet<Long>> likes = new HashMap<Long, HashSet<Long>>();
 
     private long generateId = 1;
 
     @Override
     public Film create(Film film) {
         film.setId(generateId++);
-        film.setLikes(new HashSet<>());
         storage.put(film.getId(), film);
+        likes.put(film.getId(), new HashSet<>());
         return film;
     }
 
     @Override
     public Film update(@Valid @RequestBody Film film) {
-        film.setLikes(new HashSet<>());
         storage.put(film.getId(), film);
+        likes.put(film.getId(), new HashSet<>());
         return film;
     }
 
@@ -49,7 +50,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             count = storageSize;
         }
         List<Film> sortedFilms = storage.values().stream()
-                .sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(film -> likes.get(film.getId()).size(), Comparator.reverseOrder()))
                 .limit(count)
                 .collect(Collectors.toList());
         return sortedFilms;
@@ -57,11 +58,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void likeOnFilm(Long id, Long userId) {
-        storage.get(id).getLikes().add(userId);
+        likes.get(id).add(userId);
     }
 
     @Override
     public void deleteLikeOnFilm(Long id, Long userId) {
-        storage.get(id).getLikes().remove(userId);
+        likes.get(id).remove(userId);
     }
 }
