@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +29,7 @@ public class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private FilmController filmController;
-    private final FilmService filmService = new FilmService();
+    private final FilmService filmService = new FilmService(new InMemoryUserStorage(), new InMemoryFilmStorage());
 
     @BeforeEach
     void setUp() {
