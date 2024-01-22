@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Data
 public class InMemoryUserStorage implements UserStorage {
     @Getter
-    private final static Map<Long, User> storage = new HashMap<>();
+    private final Map<Long, User> storage = new HashMap<>();
     private long generateId;
 
     @Override
