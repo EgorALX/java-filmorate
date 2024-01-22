@@ -6,7 +6,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.DuplicateException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
@@ -22,14 +21,6 @@ public class ErrorHandler {
     public Map<String, String> handleNotFoundEcxeption(final NotFoundException exception) {
         log.info("Данные не найдены {}", exception.getMessage());
         return Map.of("Данные не найдены ", exception.getMessage(), "StackTrace: ",
-                Arrays.toString(exception.getStackTrace()));
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDuplicationEcxeption(final DuplicateException exception) {
-        log.info("Данные дублируются {}", exception.getMessage());
-        return Map.of("Данные дублируются ", exception.getMessage(), "StackTrace: ",
                 Arrays.toString(exception.getStackTrace()));
     }
 

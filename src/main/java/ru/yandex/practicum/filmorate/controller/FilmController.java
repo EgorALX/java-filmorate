@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,8 +34,8 @@ public class FilmController {
 
     @GetMapping
     public List<Film> getAll() {
+        log.info("Getting all films");
         List<Film> list = filmService.getAll();
-        log.info("Getting all films {}", list);
         return list;
     }
 
@@ -52,22 +51,21 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(value = "count", required = false, defaultValue = "10") int count) {
+        log.info("Getting popular {} films", count);
         List<Film> list = filmService.getPopular(count);
-        log.info("Getting popular films {}", list);
         return list;
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film likeOnFilm(@PathVariable Long id, @PathVariable Long userId) {
-        Film film = filmService.likeOnFilm(id, userId);
-        log.info("Putting like on film {}", film);
-        return film;
+    public void likeOnFilm(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Putting like on film {} by user {}", id, userId);
+        filmService.likeOnFilm(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLikeOnFilm(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.deleteLikeOnFilm(id, userId);
         log.info("Putting like by user {} on film {}", id, userId);
+        filmService.deleteLikeOnFilm(id, userId);
     }
 }
 

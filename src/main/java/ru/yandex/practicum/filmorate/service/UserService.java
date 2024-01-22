@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -9,8 +8,8 @@ import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,20 +17,32 @@ public class UserService {
     private final UserStorage storage = new InMemoryUserStorage();
 
     public User create(User user) {
+        if (user == null) {
+            throw new NotFoundException("User = null");
+        }
         return storage.create(user);
     }
 
     public User update(User user) {
+        if (user.getId() == null || storage.getById(user.getId()) == null) {
+            throw new NotFoundException("User not found");
+        }
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
+        user.nameChange();
         return storage.update(user);
     }
 
     public List<User> getAll() {
-        List<User> list = storage.getAll();
-        return list;
+        return storage.getAll();
     }
 
     public User getById(Long id) {
         User user = storage.getById(id);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
         return user;
     }
 
@@ -39,8 +50,7 @@ public class UserService {
         if ((storage.getById(userId) == null) || (storage.getById(id) == null)) {
             throw new NotFoundException("User not found");
         }
-        storage.getById(id).getFriends().add(userId);
-        storage.getById(userId).getFriends().add(id);
+        storage.putNewFriend(id, userId);
         return true;
     }
 
@@ -48,29 +58,20 @@ public class UserService {
         if ((storage.getById(id) == null) || (storage.getById(userId) == null)) {
             throw new NotFoundException("User not found");
         }
-        storage.getById(id).getFriends().remove(userId);
+        storage.deleteFriend(id, userId);
     }
 
     public List<User> getUserFriends(Long id) {
-        List<User> friends = new ArrayList<>();
-        User user = storage.getById(id);
-        for (Long userId : user.getFriends()) {
-            friends.add(storage.getById(userId));
+        if (storage.getById(id) == null) {
+            throw new NotFoundException("User not found");
         }
-        return friends;
+        return storage.getUserFriends(id);
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        List<User> commonFriends = new ArrayList<>();
         if (storage.getById(id).getFriends().isEmpty() || storage.getById(otherId).getFriends().isEmpty()) {
-            return commonFriends;
+            return new ArrayList<>();
         }
-        List<Long> commonFriendsId = storage.getById(id).getFriends().stream()
-                .filter(userId -> storage.getById(otherId).getFriends().contains(userId))
-                .collect(Collectors.toList());
-        for (Long userId : commonFriendsId) {
-            commonFriends.add(storage.getById(userId));
-        }
-        return commonFriends;
+        return storage.getCommonFriends(id, otherId);
     }
 }

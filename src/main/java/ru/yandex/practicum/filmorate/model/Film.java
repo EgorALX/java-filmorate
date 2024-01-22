@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jdk.jfr.Timestamp;
 import lombok.*;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;

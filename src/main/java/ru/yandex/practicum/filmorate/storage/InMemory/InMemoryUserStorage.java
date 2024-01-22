@@ -4,13 +4,11 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.DuplicateException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Slf4j
@@ -24,30 +22,14 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User create(User user) {
         user.setId(++generateId);
-        if (user.getId() == null) {
-            throw new ValidationException("id = null");
-        }
         user.nameChange();
         user.setFriends(new HashSet<>());
-        if (storage.containsValue(user)) {
-            throw new DuplicateException();
-        }
         storage.put(user.getId(), user);
         return user;
     }
 
     @Override
     public User update(User user) {
-        if (user.getId() == null) {
-            throw new ValidationException("id = null");
-        }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
-        if (!storage.containsKey(user.getId())) {
-            throw new NotFoundException(String.format("Data %s not found", user));
-        }
-        user.nameChange();
         storage.put(user.getId(), user);
         return user;
     }
@@ -60,5 +42,39 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User getById(Long id) {
         return storage.get(id);
+    }
+
+    @Override
+    public Boolean putNewFriend(Long id, Long userId) {
+        storage.get(id).getFriends().add(userId);
+        storage.get(userId).getFriends().add(id);
+        return true;
+    }
+
+    @Override
+    public void deleteFriend(Long id, Long userId) {
+        storage.get(id).getFriends().remove(userId);
+    }
+
+    @Override
+    public List<User> getUserFriends(Long id) {
+        List<User> friends = new ArrayList<>();
+        User user = storage.get(id);
+        for (Long userId : user.getFriends()) {
+            friends.add(storage.get(userId));
+        }
+        return friends;
+    }
+
+    @Override
+    public List<User> getCommonFriends(Long id, Long otherId) {
+        List<User> commonFriends = new ArrayList<>();
+        List<Long> commonFriendsId = storage.get(id).getFriends().stream()
+                .filter(userId -> storage.get(otherId).getFriends().contains(userId))
+                .collect(Collectors.toList());
+        for (Long userId : commonFriendsId) {
+            commonFriends.add(storage.get(userId));
+        }
+        return commonFriends;
     }
 }
