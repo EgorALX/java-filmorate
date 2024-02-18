@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @EqualsAndHashCode(of = {"id"})
 @Builder
 public class User {
-
     private Long id;
 
     @NotBlank

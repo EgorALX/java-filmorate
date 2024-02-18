@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +11,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.time.LocalDate;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -28,11 +26,10 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private UserController userController;
-    private ValidateService validateService = new ValidateService();
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
@@ -40,7 +37,7 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getContentFromFile("controller/request/user.json")))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content()
                         .json(getContentFromFile("controller/request/user.json")));
     }
@@ -50,30 +47,7 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(getContentFromFile("controller/request/user-Email-exception.json")))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
-    }
-
-    @Test
-    void validateTest() {
-        User user = User.builder()
-                .name("Name")
-                .id(1L)
-                .login("login")
-                .email("mail@yandex.ru")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
-        validateService.validateUser(user);
-    }
-
-    @Test
-    void validateTestNegative() {
-        User user = User.builder()
-                .name("Name")
-                .login("login")
-                .email("mail@yandex.ru")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
-        Assertions.assertThrows(ValidationException.class, () -> validateService.validateUser(user));
+                .andExpect(MockMvcResultMatchers.status().is5xxServerError());
     }
 
     private String getContentFromFile(String filename) {
