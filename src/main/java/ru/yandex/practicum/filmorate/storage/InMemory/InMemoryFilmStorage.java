@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> storage = new HashMap<>();
-    private final Map<Long, HashSet<Long>> likes = new HashMap<>();
+    private final Map<Long, HashSet<Long>> likes = new HashMap<Long, HashSet<Long>>();
 
     private long generateId = 1;
 
