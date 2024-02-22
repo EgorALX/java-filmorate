@@ -14,9 +14,7 @@ import ru.yandex.practicum.filmorate.storage.db.dao.FriendshipDao;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
-    @NonNull
     private final UserStorage userStorage;
     private final FriendshipDao friendshipDao;
 
