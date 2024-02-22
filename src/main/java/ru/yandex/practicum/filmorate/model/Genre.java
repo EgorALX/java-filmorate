@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotNull;
 
@@ -8,10 +9,11 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
+@SuperBuilder
 public class Genre {
     @NotNull
     @NonNull
-    private Integer id;
+    private Integer genre_id;
     @NotNull
     private String name;
 }

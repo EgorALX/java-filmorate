@@ -34,3 +34,6 @@ build/
 .mvn/
 mvnw.cmd
 mvnw
+
+*.db
+db/*

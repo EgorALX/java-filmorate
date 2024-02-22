@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,13 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -29,12 +26,6 @@ public class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private FilmController filmController;
-    private final FilmService filmService = new FilmService(new InMemoryUserStorage(), new InMemoryFilmStorage());
-
-    @BeforeEach
-    void setUp() {
-        filmController = new FilmController(filmService);
-    }
 
     @Test
     void createTest() throws Exception {

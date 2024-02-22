@@ -1,39 +1,53 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.db.dao.FriendshipDao;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage storage;
+    @NonNull
+    private final UserStorage userStorage;
+    private final FriendshipDao friendshipDao;
+
+    @Autowired
+    public UserService(@Qualifier("UserDbStorage") UserDbStorage userStorage,
+                         FriendshipDao friendshipDao) {
+        this.userStorage = userStorage;
+        this.friendshipDao = friendshipDao;
+    }
 
     public User create(User user) {
         if (user == null) {
             throw new NotFoundException("User = null");
         }
-        return storage.create(user);
+        return userStorage.create(user);
     }
 
     public User update(User user) {
-        if (user.getId() == null || storage.getById(user.getId()) == null) {
+        if (user.getId() == null || userStorage.getById(user.getId()) == null) {
             throw new NotFoundException("User not found");
         }
         user.nameChange();
-        return storage.update(user);
+        return userStorage.update(user);
     }
 
     public List<User> getAll() {
-        return storage.getAll();
+        return userStorage.getAll();
     }
 
     public User getById(Long id) {
-        User user = storage.getById(id);
+        User user = userStorage.getById(id);
         if (user == null) {
             throw new NotFoundException("User not found");
         }
@@ -41,28 +55,30 @@ public class UserService {
     }
 
     public Boolean putNewFriend(Long id, Long userId) {
-        if ((storage.getById(userId) == null) || (storage.getById(id) == null)) {
+        if ((userStorage.getById(userId) == null) || (userStorage.getById(id) == null)) {
             throw new NotFoundException("User not found");
         }
-        storage.putNewFriend(id, userId);
+        boolean isUsersFriends = friendshipDao.isFriendship(id, userId);
+        friendshipDao.addFriend(id, userId, isUsersFriends);
         return true;
     }
 
     public void deleteFriend(Long id, Long userId) {
-        if ((storage.getById(id) == null) || (storage.getById(userId) == null)) {
+        if ((userStorage.getById(id) == null) || (userStorage.getById(userId) == null)) {
             throw new NotFoundException("User not found");
         }
-        storage.deleteFriend(id, userId);
+        friendshipDao.removeFriend(id, userId);
     }
 
     public List<User> getUserFriends(Long id) {
-        if (storage.getById(id) == null) {
+        if (userStorage.getById(id) == null) {
             throw new NotFoundException("User not found");
         }
-        return storage.getUserFriends(id);
+        List<User> friends = friendshipDao.getUserFriends(id);
+        return friends;
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        return storage.getCommonFriends(id, otherId);
+        return friendshipDao.getCommonFriends(id, otherId);
     }
 }

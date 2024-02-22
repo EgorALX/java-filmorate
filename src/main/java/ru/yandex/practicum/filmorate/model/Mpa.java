@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotNull;
 
@@ -8,10 +9,11 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
+@SuperBuilder
 public class Mpa {
     @NotNull
     @NonNull
-    private Integer id;
+    private Integer mpa_id;
 
     @NotNull
     private String name;
