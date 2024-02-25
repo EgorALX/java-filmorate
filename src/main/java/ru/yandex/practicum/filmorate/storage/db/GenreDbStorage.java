@@ -15,6 +15,7 @@ import java.util.List;
 public class GenreDbStorage implements GenreDao {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public Genre getById(Integer id) {
         System.out.println(id);
