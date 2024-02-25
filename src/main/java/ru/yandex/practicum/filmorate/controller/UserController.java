@@ -73,4 +73,5 @@ public class UserController {
         List<User> commonFriends = userService.getCommonFriends(id, otherId);
         return commonFriends;
     }
+
 }
