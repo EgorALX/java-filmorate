@@ -21,19 +21,16 @@ import java.util.List;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final GenreDao genreDao;
     private final MpaDao mpaDao;
     private final LikeDao likeDao;
 
     @Autowired
     public FilmService(@Qualifier("FilmDbStorage") FilmDbStorage filmStorage,
                          @Qualifier("UserDbStorage") UserDbStorage userStorage,
-                         GenreDao genreDao,
                          MpaDao mpaDao,
                          LikeDao likeDao) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.genreDao = genreDao;
         this.mpaDao = mpaDao;
         this.likeDao = likeDao;
     }
@@ -66,7 +63,6 @@ public class FilmService {
         filmStorage.updateGenres(newFilm.getId(), film.getGenres());
         newFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
         newFilm.setGenres(filmStorage.getGenres(newFilm.getId()));
-        System.out.println(newFilm.getGenres());
         return newFilm;
     }
 

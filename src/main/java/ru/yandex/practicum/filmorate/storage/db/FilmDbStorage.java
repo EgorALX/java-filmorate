@@ -3,19 +3,16 @@ package ru.yandex.practicum.filmorate.storage.db;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.db.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 
 import java.sql.Date;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component("FilmDbStorage")
@@ -90,7 +87,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Genre> getGenres(Long filmId) {
         List<Genre> genres = jdbcTemplate.query(
-                "SELECT g.id, g.name FROM film_genres AS f " +
+                "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
                         "LEFT OUTER JOIN genres AS g ON f.genre_id = g.id" +
                         " WHERE f.film_id=? ORDER BY g.id",
                 new GenreMapper(), filmId);
