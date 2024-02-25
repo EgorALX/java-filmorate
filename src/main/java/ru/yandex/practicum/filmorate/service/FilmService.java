@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.db.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
@@ -60,13 +59,15 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Film release date is invalid");
         }
+        Film newFilm = filmStorage.update(film);
         if (film.getGenres() == null) {
             film.setGenres(new ArrayList<>());
         }
-        Film updatedFilm = filmStorage.update(film);
-        updatedFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
-        updatedFilm.setGenres(filmStorage.getGenres(updatedFilm.getId()));
-        return updatedFilm;
+        filmStorage.updateGenres(newFilm.getId(), film.getGenres());
+        newFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
+        newFilm.setGenres(filmStorage.getGenres(newFilm.getId()));
+        System.out.println(newFilm.getGenres());
+        return newFilm;
     }
 
     public List<Film> getAll() {

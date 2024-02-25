@@ -23,7 +23,6 @@ public class MpaController {
     @GetMapping
     public List<Mpa> getAll() {
         final List<Mpa> mpas = service.getAll();
-        log.info("Getting all {} ", mpas);
         return mpas;
     }
 
