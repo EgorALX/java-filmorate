@@ -21,4 +21,6 @@ public interface UserStorage {
     List<User> getUserFriends(Long id);
 
     List<User> getCommonFriends(Long id, Long otherId);
+
+    boolean containsInBD(Long id);
 }

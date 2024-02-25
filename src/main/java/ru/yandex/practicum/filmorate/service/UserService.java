@@ -29,11 +29,12 @@ public class UserService {
         if (user == null) {
             throw new NotFoundException("User = null");
         }
+        user.nameChange();
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        if (user.getId() == null || userStorage.getById(user.getId()) == null) {
+        if (!userStorage.containsInBD(user.getId())) {
             throw new NotFoundException("User not found");
         }
         user.nameChange();
@@ -45,15 +46,15 @@ public class UserService {
     }
 
     public User getById(Long id) {
-        User user = userStorage.getById(id);
-        if (user == null) {
+        if (!userStorage.containsInBD(id)) {
             throw new NotFoundException("User not found");
         }
+        User user = userStorage.getById(id);
         return user;
     }
 
     public Boolean putNewFriend(Long id, Long userId) {
-        if ((userStorage.getById(userId) == null) || (userStorage.getById(id) == null)) {
+        if ((!userStorage.containsInBD(id)) || (!userStorage.containsInBD(userId))) {
             throw new NotFoundException("User not found");
         }
         boolean isUsersFriends = friendshipDao.isFriendship(id, userId);

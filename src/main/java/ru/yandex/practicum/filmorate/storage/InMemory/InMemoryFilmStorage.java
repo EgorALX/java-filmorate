@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import javax.validation.Valid;
@@ -64,5 +65,30 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteLikeOnFilm(Long id, Long userId) {
         likes.get(id).remove(userId);
+    }
+
+    @Override
+    public void addGenres(Long filmId, List<Genre> genres) {
+
+    }
+
+    @Override
+    public void updateGenres(Long filmId, List<Genre> genres) {
+
+    }
+
+    @Override
+    public void deleteGenres(Long filmId) {
+
+    }
+
+    @Override
+    public List<Genre> getGenres(Long filmId) {
+        return null;
+    }
+
+    @Override
+    public boolean containsInBD(Long id) {
+        return false;
     }
 }

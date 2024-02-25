@@ -2,14 +2,20 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.db.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component("FilmDbStorage")
@@ -25,7 +31,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
-                film.getMpa().getMpa_id());
+                film.getMpa().getId());
         Film createdFilm = jdbcTemplate.queryForObject(
                 "SELECT film_id, name, description, release_date, duration, mpa_id FROM films WHERE name=? "
                         + "AND description=? AND release_date=? AND duration=? AND mpa_id=?",
@@ -33,19 +39,20 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
-                film.getMpa().getMpa_id());
+                film.getMpa().getId());
         return createdFilm;
     }
 
     @Override
     public Film update(Film film) {
-        jdbcTemplate.update("UPDATE films SET name=?, description=?, release_date=?, " +
-                "duration=?, mpa_id=? WHERE film_id=?",
+        jdbcTemplate.update("UPDATE films SET" +
+                        " name=?, description=?, release_date=?, duration=?, mpa_id=?" +
+                        " WHERE film_id=?",
                 film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
-                film.getMpa().getMpa_id(),
+                film.getMpa().getId(),
                 film.getId());
         Film updatedFilm = getById(film.getId());
         return updatedFilm;
@@ -68,8 +75,8 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopular(int count) {
         List<Film> sortedFilms = jdbcTemplate.query("SELECT * FROM films AS f " +
                 "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id" +
-                " GROUP BY l.film_id" +
-                " ORDER BY COUND(l.user_id) DESC" +
+                " GROUP BY f.film_id" +
+                " ORDER BY COUNT(l.user_id) DESC" +
                 " LIMIT " + count, new FilmMapper());
         return sortedFilms;
     }
@@ -80,4 +87,42 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteLikeOnFilm(Long id, Long userId) {}
 
+    @Override
+    public List<Genre> getGenres(Long filmId) {
+        List<Genre> genres = jdbcTemplate.query(
+                "SELECT g.id, g.name FROM film_genres AS f " +
+                        "LEFT OUTER JOIN genres AS g ON f.genre_id = g.id" +
+                        " WHERE f.film_id=? ORDER BY g.id",
+                new GenreMapper(), filmId);
+        return genres;
+    }
+
+    @Override
+    public void addGenres(Long filmId, List<Genre> genres) {
+        for (Genre genre : genres) {
+            jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id)" +
+                    " VALUES (?, ?)", filmId, genre.getId());
+        }
+    }
+
+    @Override
+    public void updateGenres(Long filmId, List<Genre> genres) {
+        deleteGenres(filmId);
+        addGenres(filmId, genres);
+    }
+
+    @Override
+    public void deleteGenres(Long filmId) {
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id=?", filmId);
+    }
+
+    @Override
+    public boolean containsInBD(Long id) {
+        try {
+            getById(id);
+            return true;
+        } catch (EmptyResultDataAccessException exception) {
+            return false;
+        }
+    }
 }

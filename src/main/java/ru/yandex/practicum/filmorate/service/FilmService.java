@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.db.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.db.dao.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -42,41 +44,47 @@ public class FilmService {
             throw new ValidationException("Date is not valid");
         }
         Film newFilm = filmStorage.create(film);
-        newFilm.setMpa(mpaDao.getById(newFilm.getMpa().getMpa_id()));
-        newFilm.setGenres(genreDao.getGenresOfFilm(newFilm.getId()));
+        if (film.getGenres() == null) {
+            film.setGenres(new ArrayList<>());
+        }
+        filmStorage.addGenres(newFilm.getId(), film.getGenres());
+        newFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
+        newFilm.setGenres(filmStorage.getGenres(newFilm.getId()));
         return newFilm;
     }
 
     public Film update(Film film) {
-        if (film.getId() == null || (filmStorage.getById(film.getId()) == null)) {
+        if (!filmStorage.containsInBD(film.getId())) {
             throw new NotFoundException("Film not found");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Film release date is invalid");
         }
-        Film newFilm = filmStorage.update(film);
-        genreDao.updateGenres(newFilm.getId(), film.getGenres());
-        newFilm.setMpa(mpaDao.getById(newFilm.getMpa().getMpa_id()));
-        newFilm.setGenres(genreDao.getGenresOfFilm(newFilm.getId()));
-        return newFilm;
+        if (film.getGenres() == null) {
+            film.setGenres(new ArrayList<>());
+        }
+        Film updatedFilm = filmStorage.update(film);
+        updatedFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
+        updatedFilm.setGenres(filmStorage.getGenres(updatedFilm.getId()));
+        return updatedFilm;
     }
 
     public List<Film> getAll() {
         List<Film> films = filmStorage.getAll();
         for (Film film : films) {
-            film.setMpa(mpaDao.getById(film.getMpa().getMpa_id()));
-            film.setGenres(genreDao.getGenresOfFilm(film.getId()));
+            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+            film.setGenres(filmStorage.getGenres(film.getId()));
         }
         return films;
     }
 
     public Film getById(Long id) {
-        Film film = filmStorage.getById(id);
-        if (film == null) {
+        if (!filmStorage.containsInBD(id)) {
             throw new NotFoundException("Film not found");
         }
-        film.setMpa(mpaDao.getById(film.getMpa().getMpa_id()));
-        film.setGenres(genreDao.getGenresOfFilm(film.getId()));
+        Film film = filmStorage.getById(id);
+        film.setMpa(mpaDao.getById(film.getMpa().getId()));
+        film.setGenres(filmStorage.getGenres(id));
         return film;
     }
 
@@ -84,7 +92,12 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("count is invalid");
         }
-        return filmStorage.getPopular(count);
+        List<Film> films = filmStorage.getPopular(count);
+        for (Film film : films) {
+            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+            film.setGenres(filmStorage.getGenres(film.getId()));
+        }
+        return films;
     }
 
     public void likeOnFilm(Long id, Long userId) {
@@ -98,10 +111,10 @@ public class FilmService {
     }
 
     public void deleteLikeOnFilm(Long id, Long userId) {
-        if (filmStorage.getById(id) == null) {
+        if (!filmStorage.containsInBD(id)) {
             throw new NotFoundException("Film not found");
         }
-        if (userStorage.getById(userId) == null) {
+        if (!userStorage.containsInBD(userId)) {
             throw new NotFoundException("User not found");
         }
         likeDao.deleteLikeOnFilm(id, userId);

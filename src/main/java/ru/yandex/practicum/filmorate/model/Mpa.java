@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 public class Mpa {
     @NotNull
     @NonNull
-    private Integer mpa_id;
+    private Integer id;
 
     @NotNull
     private String name;

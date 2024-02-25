@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
@@ -46,6 +47,7 @@ public class UserDbStorage implements UserStorage {
                 "SELECT user_id, email, login, name, birthday FROM users "
                         + "WHERE user_id=?", new UserMapper(), user.getId());
         return updatedUser;
+
     }
 
     @Override
@@ -62,10 +64,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void putNewFriend(Long id, Long userId) {}
+    public void putNewFriend(Long id, Long userId) {
+    }
 
     @Override
-    public void deleteFriend(Long id, Long userId) {}
+    public void deleteFriend(Long id, Long userId) {
+    }
 
     @Override
     public List<User> getUserFriends(Long id) {
@@ -75,5 +79,17 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
         return null;
+    }
+
+    @Override
+    public boolean containsInBD(Long id) {
+        try {
+            User user = getById(id);
+            log.trace("User {} found", user);
+            return true;
+        } catch (EmptyResultDataAccessException exception) {
+            log.trace("User with id {} not found", id);
+            return false;
+        }
     }
 }

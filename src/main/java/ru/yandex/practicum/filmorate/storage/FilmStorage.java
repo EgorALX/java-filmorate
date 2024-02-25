@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
 import java.util.Set;
@@ -21,4 +22,13 @@ public interface FilmStorage {
 
     void deleteLikeOnFilm(Long id, Long userId);
 
+    void addGenres(Long filmId, List<Genre> genres);
+
+    void updateGenres(Long filmId, List<Genre> genres);
+
+    void deleteGenres(Long filmId);
+
+    boolean containsInBD(Long id);
+
+    public List<Genre> getGenres(Long filmId);
 }

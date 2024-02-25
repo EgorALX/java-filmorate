@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.db.dao.GenreDao;
 
@@ -13,8 +14,11 @@ public class GenreService {
 
     private final GenreDao genreDao;
 
-    public List<Genre> getGenresOfFilm(Long id) {
-        return (List<Genre>) genreDao.getGenresOfFilm(id);
+    public Genre getGenre(Integer id) {
+        if (!genreDao.containsInBD(id)) {
+           throw new NotFoundException("Data not found");
+        }
+        return genreDao.getById(id);
     }
 
     public List<Genre> getAll() {

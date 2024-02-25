@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.db.mappers.FriendshipMapper;
 import ru.yandex.practicum.filmorate.storage.db.mappers.UserMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -39,18 +40,27 @@ public class FriendDbStorage implements FriendshipDao {
 
     @Override
     public List<User> getUserFriends(Long id) {
-        return  jdbcTemplate.query("SELECT u.* FROM friends AS f" +
-                                "LEFT OUTER JOIN users AS u ON f.user_id = u.user_id" +
-                                " WHERE f.user_id=?",
-                        new UserMapper(), id);
+        List<User> list = jdbcTemplate.query("SELECT u.* FROM users AS u " +
+                "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
+                "WHERE f.user_id=?",
+                new UserMapper(), id);
+        return list;
     }
 
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
-        return jdbcTemplate.query("SELECT * FROM users as u" +
-                        "LEFT OUTER JOIN friends AS f ON f.user_id = u.user_id " +
-                        "WHERE f.user_id=? AND f.friend_id=? AND f.is_friend=TRUE ", new UserMapper(),
-                id, otherId);
+        List<User> firstUserFriends = jdbcTemplate.query("SELECT u.* FROM users AS u " +
+                        "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
+                        "WHERE f.user_id=? AND f.friend_id",
+                new UserMapper(), id);
+        List<User> secondUserFriends = jdbcTemplate.query("SELECT u.* FROM users AS u " +
+                        "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
+                        "WHERE f.user_id=?",
+                new UserMapper(), otherId);
+        List<User> resultList = secondUserFriends.stream().filter(firstUserFriends::contains)
+                .filter(secondUserFriends::contains)
+                .collect(Collectors.toList());
+        return resultList;
     }
 
     @Override

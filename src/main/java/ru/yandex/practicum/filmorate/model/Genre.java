@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 public class Genre {
     @NotNull
     @NonNull
-    private Integer genre_id;
+    private Integer id;
     @NotNull
     private String name;
 }

@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface GenreDao {
-    public void addGenres (Long filmId, Set<Genre> genres);
-    public void updateGenres(Long filmId, Set<Genre> genres);
-    public Set<Genre> getGenresOfFilm(Long filmId);
+    public Genre getById(Integer filmId);
     public List<Genre> getAll();
+    boolean containsInBD(Integer id);
 }

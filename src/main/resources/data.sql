@@ -1,4 +1,4 @@
-merge into genres (genre_id, name)
+merge into genres (id, name)
     values (1, 'Комедия'),
            (2, 'Драма'),
            (3, 'Мультфильм'),
@@ -6,7 +6,7 @@ merge into genres (genre_id, name)
            (5, 'Документальный'),
            (6, 'Боевик');
 
-merge into mpa (mpa_id, name)
+merge into mpa (id, name)
     values (1, 'G'),
            (2, 'PG'),
            (3, 'PG-13'),

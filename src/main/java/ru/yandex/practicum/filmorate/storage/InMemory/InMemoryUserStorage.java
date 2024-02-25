@@ -79,4 +79,9 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return commonFriends;
     }
+
+    @Override
+    public boolean containsInBD(Long id) {
+        return false;
+    }
 }
