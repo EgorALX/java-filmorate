@@ -15,6 +15,7 @@ import java.util.List;
 public class MpaDbStorage implements MpaDao {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public Mpa getById(Integer id) {
         Mpa mpa = jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE id=?",
