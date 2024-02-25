@@ -69,17 +69,14 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addGenres(Long filmId, List<Genre> genres) {
-
     }
 
     @Override
     public void updateGenres(Long filmId, List<Genre> genres) {
-
     }
 
     @Override
     public void deleteGenres(Long filmId) {
-
     }
 
     @Override

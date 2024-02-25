@@ -79,10 +79,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void likeOnFilm(Long id, Long userId) {}
+    public void likeOnFilm(Long id, Long userId) {
+    }
 
     @Override
-    public void deleteLikeOnFilm(Long id, Long userId) {}
+    public void deleteLikeOnFilm(Long id, Long userId) {
+    }
 
     @Override
     public List<Genre> getGenres(Long filmId) {
