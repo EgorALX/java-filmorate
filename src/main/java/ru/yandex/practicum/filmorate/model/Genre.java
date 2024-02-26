@@ -11,9 +11,9 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 @SuperBuilder
 public class Genre {
-    @NotNull
+
     @NonNull
     private Integer id;
-    @NotNull
+
     private String name;
 }
