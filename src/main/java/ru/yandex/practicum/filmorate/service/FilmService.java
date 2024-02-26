@@ -44,31 +44,15 @@ public class FilmService {
             throw new ValidationException("Film release date is invalid");
         }
         Film newFilm = filmStorage.update(film);
-        if (film.getGenres() == null) {
-            film.setGenres(new ArrayList<>());
-        }
-        filmStorage.updateGenres(newFilm.getId(), film.getGenres());
-        newFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
-        newFilm.setGenres(filmStorage.getGenres(newFilm.getId()));
         return newFilm;
     }
 
     public List<Film> getAll() {
-        List<Film> films = filmStorage.getAll();
-        for (Film film : films) {
-            film.setMpa(mpaDao.getById(film.getMpa().getId()));
-            film.setGenres(filmStorage.getGenres(film.getId()));
-        }
-        return films;
+        return filmStorage.getAll();
     }
 
     public Film getById(Long id) {
-        if (!filmStorage.containsInBD(id)) {
-            throw new NotFoundException("Film not found");
-        }
         Film film = filmStorage.getById(id);
-        film.setMpa(mpaDao.getById(film.getMpa().getId()));
-        film.setGenres(filmStorage.getGenres(id));
         return film;
     }
 
@@ -77,10 +61,6 @@ public class FilmService {
             throw new ValidationException("count is invalid");
         }
         List<Film> films = filmStorage.getPopular(count);
-        for (Film film : films) {
-            film.setMpa(mpaDao.getById(film.getMpa().getId()));
-            film.setGenres(filmStorage.getGenres(film.getId()));
-        }
         return films;
     }
 

@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,5 +32,6 @@ public class Film {
     @NotNull
     private Mpa mpa;
 
-    private List<Genre> genres;
+    @Builder.Default
+    private List<Genre> genres = new ArrayList<>();
 }

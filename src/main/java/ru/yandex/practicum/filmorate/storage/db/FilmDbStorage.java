@@ -31,9 +31,6 @@ public class FilmDbStorage implements FilmStorage {
         if (tableElementsExist("genres") || tableElementsExist("mpa")) {
             throw new NotFoundException("Data not found");
         }
-        if (film.getGenres() == null) {
-            film.setGenres(new ArrayList<>());
-        }
         String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
                 " VALUES (:name, :description, :release_date, :duration, :mpa_id)";
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -57,25 +54,33 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (tableElementsExist("genres") || tableElementsExist("mpa")) {
+        if (tableElementsExist("genres") || tableElementsExist("mpa")
+                || (!containsInBD(film.getId()))) {
             throw new NotFoundException("Data not found");
         }
-        jdbcTemplate.update("UPDATE films SET" +
-                        " name=?, description=?, release_date=?, duration=?, mpa_id=?" +
-                        " WHERE film_id=?",
-                film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
-                film.getMpa().getId(),
-                film.getId());
-        Film updatedFilm = getById(film.getId());
-        return updatedFilm;
+        String sql = "UPDATE films SET name=:name, description=:description, release_date=:release_date, " +
+                "duration=:duration, mpa_id=:mpa_id WHERE film_id=:film_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("name", film.getName());
+        params.addValue("description", film.getDescription());
+        params.addValue("release_date",Date.valueOf(film.getReleaseDate()));
+        params.addValue("duration",  film.getDuration());
+        params.addValue("mpa_id", film.getMpa().getId());
+        params.addValue("film_id", film.getId());
+        namedParameterJdbcTemplate.update(sql, params);
+        updateGenres(film.getId(), film.getGenres());
+        film.setMpa(mpaDao.getById(film.getMpa().getId()));
+        film.setGenres(getGenres(film.getId()));
+        return film;
     }
 
     @Override
     public List<Film> getAll() {
-        List<Film> films = jdbcTemplate.query("SELECT * FROM films", new FilmMapper());
+        List<Film> films = namedParameterJdbcTemplate.query("SELECT * FROM films", new FilmMapper());
+        for (Film film : films) {
+            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+            film.setGenres(getGenres(film.getId()));
+        }
         return films;
     }
 
@@ -84,6 +89,9 @@ public class FilmDbStorage implements FilmStorage {
         try {
             Film returnedFilm = jdbcTemplate.queryForObject("SELECT film_id, name, description, release_date, " +
                     "duration, mpa_id FROM films WHERE film_id=?", new FilmMapper(), id);
+
+            returnedFilm.setMpa(mpaDao.getById(returnedFilm.getMpa().getId()));
+            returnedFilm.setGenres(getGenres(id));
             return returnedFilm;
         } catch (EmptyResultDataAccessException exception) {
             throw new NotFoundException("Data not found");
@@ -99,6 +107,10 @@ public class FilmDbStorage implements FilmStorage {
                 " GROUP BY f.film_id" +
                 " ORDER BY COUNT(l.user_id) DESC" +
                 " LIMIT " + count, new FilmMapper());
+        for (Film film : sortedFilms) {
+            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+            film.setGenres(getGenres(film.getId()));
+        }
         return sortedFilms;
     }
 
@@ -123,13 +135,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void addGenres(Long filmId, List<Genre> genres) {
         for (Genre genre : genres) {
-            String sql1 = "INSERT INTO film_genres (film_id, genre_id)" +
+            String sql = "INSERT INTO film_genres (film_id, genre_id)" +
                     " VALUES (:film_id, :genre_id)";
-            MapSqlParameterSource params1 = new MapSqlParameterSource();
-            params1.addValue("film_id", filmId);
-            params1.addValue("genre_id", genre.getId());
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("film_id", filmId);
+            params.addValue("genre_id", genre.getId());
 
-            namedParameterJdbcTemplate.update(sql1, params1);
+            namedParameterJdbcTemplate.update(sql, params);
         }
     }
 
@@ -141,7 +153,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteGenres(Long filmId) {
-        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id=?", filmId);
+        String sql = "DELETE FROM film_genres WHERE film_id=:film_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
     @Override
