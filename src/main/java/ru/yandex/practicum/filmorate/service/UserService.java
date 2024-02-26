@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -38,11 +39,11 @@ public class UserService {
         return userStorage.getAll();
     }
 
-    public User getById(Long id) {
+    public Optional<User> getById(Long id) {
         if (!userStorage.containsInBD(id)) {
             throw new NotFoundException("User not found");
         }
-        User user = userStorage.getById(id);
+        Optional<User> user = userStorage.getById(id);
         return user;
     }
 

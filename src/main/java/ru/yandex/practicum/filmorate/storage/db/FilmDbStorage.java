@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.db;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -86,7 +85,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(Long id) {
+    public Optional<Film> getById(Long id) {
         try {
             String sql = "SELECT film_id, name, description, release_date, " +
                     "duration, mpa_id FROM films WHERE film_id=:film_id";
@@ -95,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
             Film returnedFilm = namedParameterJdbcTemplate.queryForObject(sql, params, new FilmMapper());
             returnedFilm.setMpa(mpaDao.getById(returnedFilm.getMpa().getId()));
             returnedFilm.setGenres(getGenres(id));
-            return returnedFilm;
+            return Optional.of(returnedFilm);
         } catch (EmptyResultDataAccessException exception) {
             throw new NotFoundException("Data not found");
         }
@@ -104,7 +103,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopular(int count) {
         List<Film> sortedFilms = namedParameterJdbcTemplate.query("SELECT * FROM films AS f " +
-                "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id" +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id" +
                 " GROUP BY f.film_id" +
                 " ORDER BY COUNT(l.user_id) DESC" +
                 " LIMIT " + count, new FilmMapper());
@@ -126,7 +125,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Genre> getGenres(Long filmId) {
         String sql = "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
-                "LEFT OUTER JOIN genres AS g ON f.genre_id = g.id" +
+                "LEFT JOIN genres AS g ON f.genre_id = g.id" +
                 " WHERE f.film_id=:film_id ORDER BY g.id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);

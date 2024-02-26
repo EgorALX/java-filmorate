@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.db.dao.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -51,8 +52,8 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public Film getById(Long id) {
-        Film film = filmStorage.getById(id);
+    public Optional<Film> getById(Long id) {
+        Optional<Film> film = filmStorage.getById(id);
         return film;
     }
 

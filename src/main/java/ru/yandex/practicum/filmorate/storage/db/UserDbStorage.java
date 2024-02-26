@@ -60,16 +60,16 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getById(Long id) {
-        return jdbcTemplate.queryForObject(
+    public Optional<User> getById(Long id) {
+        return Optional.of(jdbcTemplate.queryForObject(
                 "SELECT * FROM users WHERE user_id=?",
-                new UserMapper(), id);
+                new UserMapper(), id));
     }
 
     @Override
     public boolean containsInBD(Long id) {
         try {
-            User user = getById(id);
+            Optional<User> user = getById(id);
             log.trace("User {} found", user);
             return true;
         } catch (EmptyResultDataAccessException exception) {

@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -39,7 +40,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getById(@PathVariable Long id) {
+    public Optional<Film> getById(@PathVariable Long id) {
         log.info("Getting film");
         return filmService.getById(id);
     }

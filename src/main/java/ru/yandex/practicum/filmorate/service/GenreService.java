@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.db.dao.GenreDao;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +14,7 @@ public class GenreService {
 
     private final GenreDao genreDao;
 
-    public Genre getById(Integer id) {
+    public Optional<Genre> getById(Integer id) {
         return genreDao.getById(id);
     }
 

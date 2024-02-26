@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
+    public Optional<User> getById(@PathVariable Long id) {
         log.info("Getting user");
         return userService.getById(id);
     }

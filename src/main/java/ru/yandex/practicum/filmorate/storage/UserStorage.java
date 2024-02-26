@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserStorage {
 
@@ -13,7 +14,7 @@ public interface UserStorage {
 
     List<User> getAll();
 
-    User getById(Long id);
+    Optional<User> getById(Long id);
 
     void putNewFriend(Long id, Long userId, boolean isFriend);
 
