@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.db.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.Date;
 import java.util.*;
@@ -18,17 +20,22 @@ import java.util.*;
 @Component("FilmDbStorage")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Film create(Film film) {
-        jdbcTemplate.update("INSERT INTO films (name, description, release_date, duration, mpa_id)" +
-                        " VALUES (?, ?, ?, ?, ?)",
-                film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
-                film.getMpa().getId());
+        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
+                " VALUES (:name, :description, :release_date, :duration, :mpa_id)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("name", film.getName());
+        params.addValue("description", film.getDescription());
+        params.addValue("release_date",Date.valueOf(film.getReleaseDate()));
+        params.addValue("duration",  film.getDuration());
+        params.addValue("mpa_id", film.getMpa().getId());
+
+        namedParameterJdbcTemplate.update(sql, params);
+
         Film createdFilm = jdbcTemplate.queryForObject(
                 "SELECT film_id, name, description, release_date, duration, mpa_id FROM films WHERE name=? "
                         + "AND description=? AND release_date=? AND duration=? AND mpa_id=?",

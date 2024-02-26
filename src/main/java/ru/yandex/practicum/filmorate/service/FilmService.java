@@ -36,6 +36,7 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Date is not valid");
         }
+        
         Film newFilm = filmStorage.create(film);
         if (film.getGenres() == null) {
             film.setGenres(new ArrayList<>());
