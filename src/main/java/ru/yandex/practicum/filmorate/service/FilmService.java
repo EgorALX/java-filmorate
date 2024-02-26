@@ -75,7 +75,7 @@ public class FilmService {
     }
 
     public void deleteLikeOnFilm(Long id, Long userId) {
-        if (!filmStorage.containsInBD(id)) {
+        if (getById(id) == null) {
             throw new NotFoundException("Film not found");
         }
         if (!userStorage.containsInBD(userId)) {

@@ -27,7 +27,5 @@ public interface FilmStorage {
 
     void deleteGenres(Long filmId);
 
-    boolean containsInBD(Long id);
-
     List<Genre> getGenres(Long filmId);
 }

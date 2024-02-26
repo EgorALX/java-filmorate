@@ -55,7 +55,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (tableElementsExist("genres") || tableElementsExist("mpa")
-                || (!containsInBD(film.getId()))) {
+                || (getById(film.getId()) == null)) {
             throw new NotFoundException("Data not found");
         }
         String sql = "UPDATE films SET name=:name, description=:description, release_date=:release_date, " +
@@ -157,16 +157,6 @@ public class FilmDbStorage implements FilmStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);
         namedParameterJdbcTemplate.update(sql, params);
-    }
-
-    @Override
-    public boolean containsInBD(Long id) {
-        try {
-            getById(id);
-            return true;
-        } catch (EmptyResultDataAccessException exception) {
-            return false;
-        }
     }
 
     public boolean tableElementsExist(String tableName) {
