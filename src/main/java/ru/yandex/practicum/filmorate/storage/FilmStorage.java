@@ -22,11 +22,4 @@ public interface FilmStorage {
 
     void deleteLikeOnFilm(Long id, Long userId);
 
-    void addGenres(Long filmId, List<Genre> genres);
-
-    void updateGenres(Long filmId, List<Genre> genres);
-
-    void deleteGenres(Long filmId);
-
-    List<Genre> getGenres(Long filmId);
 }

@@ -3,18 +3,21 @@ package ru.yandex.practicum.filmorate.storage.db;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.db.dao.MpaDao;
-import ru.yandex.practicum.filmorate.storage.db.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 @Slf4j
@@ -122,8 +125,7 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteLikeOnFilm(Long id, Long userId) {
     }
 
-    @Override
-    public List<Genre> getGenres(Long filmId) {
+    private List<Genre> getGenres(Long filmId) {
         String sql = "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
                 "LEFT JOIN genres AS g ON f.genre_id = g.id" +
                 " WHERE f.film_id=:film_id ORDER BY g.id";
@@ -133,8 +135,7 @@ public class FilmDbStorage implements FilmStorage {
         return genres;
     }
 
-    @Override
-    public void addGenres(Long filmId, List<Genre> genres) {
+    private void addGenres(Long filmId, List<Genre> genres) {
         for (Genre genre : genres) {
             String sql = "INSERT INTO film_genres (film_id, genre_id)" +
                     " VALUES (:film_id, :genre_id)";
@@ -145,24 +146,39 @@ public class FilmDbStorage implements FilmStorage {
             namedParameterJdbcTemplate.update(sql, params);
         }
     }
-
-    @Override
-    public void updateGenres(Long filmId, List<Genre> genres) {
+    private void updateGenres(Long filmId, List<Genre> genres) {
         deleteGenres(filmId);
         addGenres(filmId, genres);
     }
 
-    @Override
-    public void deleteGenres(Long filmId) {
+    private void deleteGenres(Long filmId) {
         String sql = "DELETE FROM film_genres WHERE film_id=:film_id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);
         namedParameterJdbcTemplate.update(sql, params);
     }
 
-    public boolean tableElementsExist(String tableName) {
+    private boolean tableElementsExist(String tableName) {
         String sql = "SELECT COUNT(*) FROM " + tableName;
         Integer count = namedParameterJdbcTemplate.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
         return count ==  0;
     }
+
+    public static class FilmMapper implements RowMapper<Film> {
+
+        @Override
+        public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Film film = new Film();
+            Mpa mpa = new Mpa();
+            film.setId(rs.getLong("film_id"));
+            film.setName(rs.getString("name"));
+            film.setDescription(rs.getString("description"));
+            film.setReleaseDate(rs.getDate("release_date").toLocalDate());
+            film.setDuration(rs.getInt("duration"));
+            mpa.setId(rs.getInt("mpa_id"));
+            film.setMpa(mpa);
+            return film;
+        }
+    }
+
 }
