@@ -54,8 +54,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (tableElementsExist("genres") || tableElementsExist("mpa")
-                || (getById(film.getId()) == null)) {
+        getById(film.getId());
+        if (tableElementsExist("genres") || tableElementsExist("mpa")) {
             throw new NotFoundException("Data not found");
         }
         String sql = "UPDATE films SET name=:name, description=:description, release_date=:release_date, " +
@@ -87,22 +87,22 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getById(Long id) {
         try {
-            Film returnedFilm = jdbcTemplate.queryForObject("SELECT film_id, name, description, release_date, " +
-                    "duration, mpa_id FROM films WHERE film_id=?", new FilmMapper(), id);
-
+            String sql = "SELECT film_id, name, description, release_date, " +
+                    "duration, mpa_id FROM films WHERE film_id=:film_id";
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("film_id", id);
+            Film returnedFilm = namedParameterJdbcTemplate.queryForObject(sql, params, new FilmMapper());
             returnedFilm.setMpa(mpaDao.getById(returnedFilm.getMpa().getId()));
             returnedFilm.setGenres(getGenres(id));
             return returnedFilm;
         } catch (EmptyResultDataAccessException exception) {
             throw new NotFoundException("Data not found");
         }
-
-
     }
 
     @Override
     public List<Film> getPopular(int count) {
-        List<Film> sortedFilms = jdbcTemplate.query("SELECT * FROM films AS f " +
+        List<Film> sortedFilms = namedParameterJdbcTemplate.query("SELECT * FROM films AS f " +
                 "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id" +
                 " GROUP BY f.film_id" +
                 " ORDER BY COUNT(l.user_id) DESC" +
@@ -124,11 +124,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Genre> getGenres(Long filmId) {
-        List<Genre> genres = jdbcTemplate.query(
-                "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
-                        "LEFT OUTER JOIN genres AS g ON f.genre_id = g.id" +
-                        " WHERE f.film_id=? ORDER BY g.id",
-                new GenreMapper(), filmId);
+        String sql = "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
+                "LEFT OUTER JOIN genres AS g ON f.genre_id = g.id" +
+                " WHERE f.film_id=:film_id ORDER BY g.id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        List<Genre> genres = namedParameterJdbcTemplate.query(sql, params, new GenreMapper());
         return genres;
     }
 
