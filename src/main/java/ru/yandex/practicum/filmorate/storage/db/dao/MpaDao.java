@@ -8,5 +8,4 @@ public interface MpaDao {
 
     List<Mpa> getAll();
 
-    boolean containsInBD(Integer id);
 }

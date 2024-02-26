@@ -22,8 +22,9 @@ import java.util.*;
 @Component("FilmDbStorage")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final JdbcTemplate jdbcTemplate;
+
     private final MpaDao mpaDao;
 
     @Override

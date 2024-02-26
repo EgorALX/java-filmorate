@@ -19,9 +19,6 @@ public class MpaService {
     }
 
     public Mpa getById(Integer id) {
-        if (!mpaDao.containsInBD(id)) {
-            throw new NotFoundException("Film not found");
-        }
         return mpaDao.getById(id);
     }
 }
