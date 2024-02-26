@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -36,21 +35,11 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Date is not valid");
         }
-        
         Film newFilm = filmStorage.create(film);
-        if (film.getGenres() == null) {
-            film.setGenres(new ArrayList<>());
-        }
-        filmStorage.addGenres(newFilm.getId(), film.getGenres());
-        newFilm.setMpa(mpaDao.getById(film.getMpa().getId()));
-        newFilm.setGenres(filmStorage.getGenres(newFilm.getId()));
         return newFilm;
     }
 
     public Film update(Film film) {
-        if (!filmStorage.containsInBD(film.getId())) {
-            throw new NotFoundException("Film not found");
-        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Film release date is invalid");
         }
