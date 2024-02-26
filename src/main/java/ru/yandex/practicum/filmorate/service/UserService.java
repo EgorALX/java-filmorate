@@ -1,26 +1,21 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.db.dao.FriendshipDao;
 
 import java.util.List;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private final FriendshipDao friendshipDao;
 
     @Autowired
-    public UserService(@Qualifier("UserDbStorage") UserDbStorage userStorage,
-                         FriendshipDao friendshipDao) {
+    public UserService(UserDbStorage userStorage) {
         this.userStorage = userStorage;
-        this.friendshipDao = friendshipDao;
     }
 
     public User create(User user) {
@@ -55,8 +50,8 @@ public class UserService {
         if ((!userStorage.containsInBD(id)) || (!userStorage.containsInBD(userId))) {
             throw new NotFoundException("User not found");
         }
-        boolean isUsersFriends = friendshipDao.isFriendship(id, userId);
-        friendshipDao.addFriend(id, userId, isUsersFriends);
+        boolean isUsersFriends = userStorage.isFriendship(id, userId);
+        userStorage.putNewFriend(id, userId, isUsersFriends);
         return true;
     }
 
@@ -64,18 +59,18 @@ public class UserService {
         if ((userStorage.getById(id) == null) || (userStorage.getById(userId) == null)) {
             throw new NotFoundException("User not found");
         }
-        friendshipDao.removeFriend(id, userId);
+        userStorage.removeFriend(id, userId);
     }
 
     public List<User> getUserFriends(Long id) {
         if (userStorage.getById(id) == null) {
             throw new NotFoundException("User not found");
         }
-        List<User> friends = friendshipDao.getUserFriends(id);
+        List<User> friends = userStorage.getUserFriends(id);
         return friends;
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        return friendshipDao.getCommonFriends(id, otherId);
+        return userStorage.getCommonFriends(id, otherId);
     }
 }
