@@ -74,25 +74,17 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getById(Long id) {
-        try {
-
-            String sql1 = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration," +
-                    " m.mpaId, m.mpaName, g.genreId, g.genreName FROM films AS f " +
-                    "LEFT JOIN film_genres AS fg ON f.film_id=fg.film_id " +
-                    "LEFT JOIN genres AS g ON fg.genre_id=g.genreId " +
-                    "lEFT JOIN mpa AS m ON f.mpa_id=m.mpaId " +
-                    "WHERE f.film_id=:f.film_id " +
-                    "ORDER BY f.film_id, g.genreId";
-
-            String sql = "SELECT film_id, name, description, release_date, " +
-                    "duration, mpa_id FROM films WHERE film_id=:film_id";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("f.film_id", id);
-            Film returnedFilm = namedParameterJdbcTemplate.queryForObject(sql1, params, new FilmMapper());
-            return Optional.of(returnedFilm);
-        } catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException("Data not found");
-        }
+        String sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration," +
+                " m.mpaId, m.mpaName, g.genreId, g.genreName FROM films AS f " +
+                "LEFT JOIN film_genres AS fg ON f.film_id=fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id=g.genreId " +
+                "lEFT JOIN mpa AS m ON f.mpa_id=m.mpaId " +
+                "WHERE f.film_id=:f.film_id " +
+                "ORDER BY f.film_id, g.genreId";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("f.film_id", id);
+        List<Film> films = namedParameterJdbcTemplate.query(sql, params, new OrderDetailsExtractor());
+        return films.isEmpty() ? Optional.empty() : Optional.of(films.get(0));
     }
 
     @Override
@@ -103,8 +95,6 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN genres AS g ON fg.genre_id=g.genreId " +
                 "lEFT JOIN mpa AS m ON f.mpa_id=m.mpaId " +
                 "GROUP BY f.film_id ORDER BY f.film_id";
-
-
         List<Film> films = namedParameterJdbcTemplate.query(sql, new OrderDetailsExtractor());
 
         return films;

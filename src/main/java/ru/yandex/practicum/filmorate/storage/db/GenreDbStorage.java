@@ -24,7 +24,6 @@ public class GenreDbStorage implements GenrуStorage {
         String sql = "SELECT genreId, genreName FROM genres WHERE genreId=:genreId";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("genreId", id);
-
         List<Genre> genres = namedParameterJdbcTemplate.query(sql, params, new GenreMapper());
         return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
