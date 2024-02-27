@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
