@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.db.dao.LikeDao;
 
-
 @Slf4j
 @Component
 @RequiredArgsConstructor

@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public interface MpaDao {
+
     @NotNull Mpa getById(Integer id);
 
     List<Mpa> getAll();
