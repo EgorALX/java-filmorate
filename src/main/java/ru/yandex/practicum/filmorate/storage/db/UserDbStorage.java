@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -46,31 +48,35 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        jdbcTemplate.update("UPDATE users SET email=?, login=?, name=?, birthday=? "
-                        + "WHERE user_id=?",
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                Date.valueOf(user.getBirthday()),
-                user.getId());
-        User updatedUser = jdbcTemplate.queryForObject(
-                "SELECT user_id, email, login, name, birthday FROM users "
-                        + "WHERE user_id=?", new UserMapper(), user.getId());
-        return updatedUser;
+        getById(user.getId());
+        String sql = "UPDATE users SET email=:email, login=:login, name=:name, birthday=:birthday WHERE user_id=:user_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", user.getEmail());
+        params.addValue("login", user.getLogin());
+        params.addValue("name", user.getName());
+        params.addValue("birthday",  Date.valueOf(user.getBirthday()));
+        params.addValue("user_id", user.getId());
+        namedParameterJdbcTemplate.update(sql, params);
+        return user;
 
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query(
-                "SELECT * FROM users ", new UserMapper());
+        return namedParameterJdbcTemplate.query("SELECT * FROM users ", new UserMapper());
     }
 
     @Override
     public Optional<User> getById(Long id) {
-        return Optional.of(jdbcTemplate.queryForObject(
-                "SELECT * FROM users WHERE user_id=?",
-                new UserMapper(), id));
+        try {
+            String sql = "SELECT * FROM users WHERE user_id=:user_id";
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("user_id", id);
+            User returnedUser = namedParameterJdbcTemplate.queryForObject(sql, params, new UserMapper());
+            return Optional.of(returnedUser);
+        } catch (EmptyResultDataAccessException exception) {
+            throw new NotFoundException("Data not found");
+        }
     }
 
     @Override
