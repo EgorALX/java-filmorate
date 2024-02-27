@@ -39,7 +39,7 @@ public class UserDbStorage implements UserStorage {
 
         String sql1 = "SELECT user_id FROM users WHERE email=:email AND login=:login AND" +
                 " name=:name AND birthday=:birthday";
-        long id = namedParameterJdbcTemplate.queryForObject(sql1, params, Integer.class);
+        Long id = namedParameterJdbcTemplate.queryForObject(sql1, params, Long.class);
         user.setId(id);
         return user;
     }
