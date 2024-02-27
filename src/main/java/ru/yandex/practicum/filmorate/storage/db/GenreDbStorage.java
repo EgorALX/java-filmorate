@@ -20,8 +20,6 @@ public class GenreDbStorage implements GenreDao {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private final JdbcTemplate jdbcTemplate;
-
     @Override
     public Optional<Genre> getById(Integer id) {
         try {
@@ -37,7 +35,7 @@ public class GenreDbStorage implements GenreDao {
 
     @Override
     public List<Genre> getAll() {
-        List<Genre> list = jdbcTemplate.query("SELECT id, name FROM genres ORDER BY id",
+        List<Genre> list = namedParameterJdbcTemplate.query("SELECT id, name FROM genres ORDER BY id",
                 new GenreMapper());
         return list;
     }

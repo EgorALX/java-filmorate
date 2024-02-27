@@ -12,19 +12,25 @@ import java.util.List;
 @EqualsAndHashCode(of = {"id"})
 @SuperBuilder
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class Film {
 
+    @NonNull
     private Long id;
 
+    @NonNull
     @NotBlank
     private String name;
 
+    @NonNull
     @Size(max = 200)
     private String description;
 
+    @NonNull
     @NotNull
     private LocalDate releaseDate;
 
+    @NonNull
     @Positive
     @Min(1)
     private int duration;
