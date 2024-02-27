@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
@@ -23,20 +25,23 @@ import java.util.stream.Collectors;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public User create(User user) {
-        jdbcTemplate.update("INSERT INTO users (email, login, name, birthday) "
-                        + "VALUES (?, ?, ?, ?)",
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                Date.valueOf(user.getBirthday()));
-        User createdUser = jdbcTemplate.queryForObject(
-                "SELECT user_id, email, login, name, birthday "
-                        + "FROM users "
-                        + "WHERE email=?", new UserMapper(), user.getEmail());
-        return createdUser;
+        String sql = "INSERT INTO users (email, login, name, birthday) VALUES (:email, :login, :name, :birthday)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", user.getEmail());
+        params.addValue("login", user.getLogin());
+        params.addValue("name", user.getName());
+        params.addValue("birthday",  Date.valueOf(user.getBirthday()));
+        namedParameterJdbcTemplate.update(sql, params);
+
+        String sql1 = "SELECT user_id FROM users WHERE email=:email AND login=:login AND" +
+                " name=:name AND birthday=:birthday";
+        long id = namedParameterJdbcTemplate.queryForObject(sql1, params, Integer.class);
+        user.setId(id);
+        return user;
     }
 
     @Override
