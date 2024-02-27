@@ -28,7 +28,7 @@ public class UserService {
     }
 
     public User update(User user) {
-        if (!userStorage.containsInBD(user.getId())) {
+        if (user == null || user.getId() == null) {
             throw new NotFoundException("User not found");
         }
         user.nameChange();
@@ -40,17 +40,13 @@ public class UserService {
     }
 
     public Optional<User> getById(Long id) {
-        if (!userStorage.containsInBD(id)) {
-            throw new NotFoundException("User not found");
-        }
         Optional<User> user = userStorage.getById(id);
         return user;
     }
 
     public Boolean putNewFriend(Long id, Long userId) {
-        if ((!userStorage.containsInBD(id)) || (!userStorage.containsInBD(userId))) {
-            throw new NotFoundException("User not found");
-        }
+        userStorage.getById(id);
+        userStorage.getById(userId);
         boolean isUsersFriends = userStorage.isFriendship(id, userId);
         userStorage.putNewFriend(id, userId, isUsersFriends);
         return true;
