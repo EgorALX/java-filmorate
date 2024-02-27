@@ -34,13 +34,8 @@ public class FilmDbStorage implements FilmStorage {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private final JdbcTemplate jdbcTemplate;
-
     @Override
     public Film create(Film film) {
-        if (tableElementsExist("genres") || tableElementsExist("mpa")) {
-            throw new NotFoundException("Data not found");
-        }
         String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
                 " VALUES (:name, :description, :release_date, :duration, :mpa_id)";
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -62,9 +57,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         getById(film.getId());
-        if (tableElementsExist("genres") || tableElementsExist("mpa")) {
-            throw new NotFoundException("Data not found");
-        }
         String sql = "UPDATE films SET name=:name, description=:description, release_date=:release_date, " +
                 "duration=:duration, mpa_id=:mpa_id WHERE film_id=:film_id";
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -101,16 +93,6 @@ public class FilmDbStorage implements FilmStorage {
         } catch (EmptyResultDataAccessException exception) {
             throw new NotFoundException("Data not found");
         }
-    }
-
-    private Set<Genre> getGenres(Long filmId) {
-        String sql = "SELECT DISTINCT g.genreId, g.genreName FROM film_genres AS f " +
-                "LEFT JOIN genres AS g ON f.genre_id = g.genreId" +
-                " WHERE f.film_id=:film_id ORDER BY g.genreId";
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("film_id", filmId);
-        Set<Genre> genres = new HashSet<>(namedParameterJdbcTemplate.query(sql, params, new GenreMapper()));
-        return genres;
     }
 
     @Override
@@ -170,25 +152,6 @@ public class FilmDbStorage implements FilmStorage {
         params.addValue("film_id", filmId);
         namedParameterJdbcTemplate.update(sql, params);
     }
-
-    private @NotNull Optional<Mpa> geMpaById(Integer id) {
-        try {
-            String sql = "SELECT * FROM mpa WHERE mpaId=:mpaId";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("mpaId", id);
-            Mpa mpa = namedParameterJdbcTemplate.queryForObject(sql, params, new MpaDbStorage.MpaMapper());
-            return Optional.of(mpa);
-        }  catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException("Data not found");
-        }
-    }
-
-    public boolean tableElementsExist(String tableName) {
-        String sql = "SELECT COUNT(*) FROM " + tableName;
-        Integer count = namedParameterJdbcTemplate.queryForObject(sql, new MapSqlParameterSource(), Integer.class);
-        return count ==  0;
-    }
-
 
     public static class FilmMapper implements RowMapper<Film> {
         @Override

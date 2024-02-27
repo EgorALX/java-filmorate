@@ -15,16 +15,12 @@ public interface UserStorage {
 
     Optional<User> getById(Long id);
 
-    void putNewFriend(Long id, Long userId, boolean isFriend);
+    void addFriend(Long id, Long userId, boolean isFriend);
 
     void removeFriend(Long id, Long userId);
 
-    List<User> getUserFriends(Long id);
+    List<User> getFriends(Long id);
 
     List<User> getCommonFriends(Long id, Long otherId);
-
-    void getFriendship(Long userId, Long friendId);
-
-    boolean isFriendship(Long userId, Long friendId);
 
 }

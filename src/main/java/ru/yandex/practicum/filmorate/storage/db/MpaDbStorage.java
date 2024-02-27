@@ -7,8 +7,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.db.dao.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 
 import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
@@ -24,15 +26,12 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public @NotNull Optional<Mpa> getById(Integer id) {
-        try {
-            String sql = "SELECT * FROM mpa WHERE mpaId=:mpaId";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("mpaId", id);
-            Mpa mpa = namedParameterJdbcTemplate.queryForObject(sql, params, new MpaMapper());
-            return Optional.of(mpa);
-        }  catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException("Data not found");
-        }
+        String sql = "SELECT * FROM mpa WHERE mpaId=:mpaId";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("mpaId", id);
+
+        List<Mpa> mpas = namedParameterJdbcTemplate.query(sql, params, new MpaMapper());
+        return mpas.isEmpty() ? Optional.empty() : Optional.of(mpas.get(0));
     }
 
     @Override

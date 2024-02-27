@@ -21,15 +21,12 @@ public class GenreDbStorage implements GenrуStorage {
 
     @Override
     public Optional<Genre> getById(Integer id) {
-        try {
-            String sql = "SELECT genreId, genreName FROM genres WHERE genreId=:genreId";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("genreId", id);
-            Genre genre = namedParameterJdbcTemplate.queryForObject(sql, params, new GenreMapper());
-            return Optional.of(genre);
-        } catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException("Data not found");
-        }
+        String sql = "SELECT genreId, genreName FROM genres WHERE genreId=:genreId";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("genreId", id);
+
+        List<Genre> genres = namedParameterJdbcTemplate.query(sql, params, new GenreMapper());
+        return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
 
     @Override
@@ -38,5 +35,4 @@ public class GenreDbStorage implements GenrуStorage {
                 new GenreMapper());
         return list;
     }
-
 }

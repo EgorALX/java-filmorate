@@ -76,7 +76,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void putNewFriend(Long id, Long userId, boolean isFriend) {
+    public void addFriend(Long id, Long userId, boolean isFriend) {
         String sql = "INSERT INTO friends (user_id, friend_id, is_friend) VALUES(:user_id, :friend_id, :is_friend)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("user_id", id);
@@ -102,7 +102,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getUserFriends(Long id) {
+    public List<User> getFriends(Long id) {
         String sql = "SELECT u.* FROM users AS u " +
                 "LEFT JOIN friends AS f ON u.user_id=f.friend_id " +
                 "WHERE f.user_id=:user_id";
@@ -126,29 +126,6 @@ public class UserDbStorage implements UserStorage {
                 .filter(secondUserFriends::contains)
                 .collect(Collectors.toList());
         return resultList;
-    }
-
-    @Override
-    public void getFriendship(Long userId, Long friendId) {
-        try {
-            String sql = "SELECT is_friend FROM friends WHERE user_id=:user_id AND friend_id=:friend_id";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("user_id", userId);
-            params.addValue("friend_id", friendId);
-            Boolean isFriends = namedParameterJdbcTemplate.queryForObject(sql, params, Boolean.class);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Data not found");
-        }
-    }
-
-    @Override
-    public boolean isFriendship(Long userId, Long friendId) {
-        try {
-            getFriendship(userId, friendId);
-            return true;
-        } catch (NotFoundException e) {
-            return false;
-        }
     }
 
     public static class UserMapper implements RowMapper<User> {

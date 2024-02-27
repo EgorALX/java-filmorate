@@ -16,6 +16,4 @@ public interface FilmStorage {
     Optional<Film> getById(Long id);
 
     List<Film> getPopular(int count);
-
-    boolean tableElementsExist(String genres);
 }

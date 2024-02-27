@@ -29,20 +29,20 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
+                || (film.getMpa() == null) || (film.getGenres() == null)) {
             throw new ValidationException("Date is not valid");
-        }
-        if (filmStorage.tableElementsExist("genres") || filmStorage.tableElementsExist("mpa")) {
-            throw new NotFoundException("Data not found");
         }
         Film newFilm = filmStorage.create(film);
         return newFilm;
     }
 
     public Film update(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
+                || (film.getMpa() == null) || (film.getGenres() == null)) {
             throw new ValidationException("Film release date is invalid");
         }
+        filmStorage.getById(film.getId());
         Film newFilm = filmStorage.update(film);
         return newFilm;
     }

@@ -41,12 +41,12 @@ public class UserService {
         return user;
     }
 
-    public Boolean putNewFriend(Long id, Long userId) {
+    public Boolean addFriend(Long id, Long userId) {
         // этими медодами проверяю существование пользователей
         getById(id);
         getById(userId);
-        boolean isUsersFriends = userStorage.isFriendship(id, userId);
-        userStorage.putNewFriend(id, userId, isUsersFriends);
+        boolean isUsersFriends = true;
+        userStorage.addFriend(id, userId, true);
         return true;
     }
 
@@ -61,7 +61,7 @@ public class UserService {
         if (userStorage.getById(id) == null) {
             throw new NotFoundException("User not found");
         }
-        List<User> friends = userStorage.getUserFriends(id);
+        List<User> friends = userStorage.getFriends(id);
         return friends;
     }
 
