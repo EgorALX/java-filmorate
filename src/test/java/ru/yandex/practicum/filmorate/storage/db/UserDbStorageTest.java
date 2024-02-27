@@ -22,16 +22,13 @@
 //@RequiredArgsConstructor(onConstructor_ = @Autowired)
 //class UserDbStorageTest {
 //
-//    @Autowired
-//    private final JdbcTemplate jdbcTemplate;
-//
 //    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 //
 //    @Test
 //    public void create() {
 //        User newUser = new User(1L, "user@email.ru", "vanya123",
 //                "Ivan Petrov", LocalDate.of(1990, 1, 1));
-//        UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
+//        UserDbStorage userStorage = new UserDbStorage(namedParameterJdbcTemplate);
 //        userStorage.create(newUser);
 //
 //        Optional<User> savedUser = userStorage.getById(1L);
@@ -44,7 +41,7 @@
 //
 //    @Test
 //    public void getByIdInvalid() {
-//        UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
+//        UserDbStorage userStorage = new UserDbStorage(namedParameterJdbcTemplate);
 //        assertThrows(EmptyResultDataAccessException.class, () -> {
 //            userStorage.getById(9999L);
 //        });

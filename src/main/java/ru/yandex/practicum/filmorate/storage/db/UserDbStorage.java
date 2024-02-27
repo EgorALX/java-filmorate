@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 
-    private final JdbcTemplate jdbcTemplate;
-
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
@@ -94,10 +92,12 @@ public class UserDbStorage implements UserStorage {
         params.addValue("user_id", id);
         params.addValue("friend_id", userId);
         Boolean isFriend = namedParameterJdbcTemplate.queryForObject(sql, params, Boolean.class);
-        jdbcTemplate.update("DELETE FROM friends WHERE user_id=? AND friend_id=?", id, userId);
+        namedParameterJdbcTemplate.update("DELETE FROM friends WHERE user_id=:user_id AND friend_id=:friend_id",
+                params);
         if (isFriend) {
-            jdbcTemplate.update("UPDATE friends SET is_friend=false WHERE user_id=? AND friend_id=?",
-                    id, userId);
+            namedParameterJdbcTemplate.update("UPDATE friends SET is_friend=false WHERE user_id=:user_id " +
+                            "AND friend_id=:friend_id",
+                    params);
         }
     }
 
