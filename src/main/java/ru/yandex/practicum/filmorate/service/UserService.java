@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -28,9 +27,7 @@ public class UserService {
     }
 
     public User update(User user) {
-        if (user == null || user.getId() == null) {
-            throw new NotFoundException("User not found");
-        }
+        getById(user.getId());
         user.nameChange();
         return userStorage.update(user);
     }
@@ -45,8 +42,9 @@ public class UserService {
     }
 
     public Boolean putNewFriend(Long id, Long userId) {
-        userStorage.getById(id);
-        userStorage.getById(userId);
+        // этими медодами проверяю существование пользователей
+        getById(id);
+        getById(userId);
         boolean isUsersFriends = userStorage.isFriendship(id, userId);
         userStorage.putNewFriend(id, userId, isUsersFriends);
         return true;

@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -30,6 +32,9 @@ public class UserController {
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
+        if (user == null || user.getId() == null) {
+            throw new ValidationException("User not found");
+        }
         log.info("Updating user {}", user);
         return userService.update(user);
     }

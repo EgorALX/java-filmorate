@@ -38,6 +38,7 @@ public class Film {
     @NotNull
     private Mpa mpa;
 
+    @NotNull
     @Builder.Default
-    private Set<Genre> genres = new HashSet<>();
+    private Set<@NotNull Genre> genres = new HashSet<>();
 }

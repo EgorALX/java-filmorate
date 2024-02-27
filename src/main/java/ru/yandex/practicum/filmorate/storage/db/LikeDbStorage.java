@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.storage.db.dao.LikeDao;
+import ru.yandex.practicum.filmorate.storage.db.dao.LikeStorage;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LikeDbStorage implements LikeDao {
+public class LikeDbStorage implements LikeStorage {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 

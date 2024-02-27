@@ -6,6 +6,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -32,18 +34,17 @@ public class UserDbStorage implements UserStorage {
         params.addValue("login", user.getLogin());
         params.addValue("name", user.getName());
         params.addValue("birthday",  Date.valueOf(user.getBirthday()));
-        namedParameterJdbcTemplate.update(sql, params);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        namedParameterJdbcTemplate.update(sql, params, keyHolder);
 
-        String sql1 = "SELECT user_id FROM users WHERE email=:email AND login=:login AND" +
-                " name=:name AND birthday=:birthday";
-        Long id = namedParameterJdbcTemplate.queryForObject(sql1, params, Long.class);
+        Long id = keyHolder.getKey().longValue();
+
         user.setId(id);
         return user;
     }
 
     @Override
     public User update(User user) {
-        getById(user.getId());
         String sql = "UPDATE users SET email=:email, login=:login, name=:name, birthday=:birthday WHERE user_id=:user_id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("email", user.getEmail());

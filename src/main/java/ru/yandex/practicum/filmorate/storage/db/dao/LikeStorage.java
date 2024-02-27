@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db.dao;
 
-public interface LikeDao {
+public interface LikeStorage {
 
     void likeOnFilm(Long id, Long userId);
 

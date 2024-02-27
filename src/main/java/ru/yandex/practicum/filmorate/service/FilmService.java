@@ -13,17 +13,16 @@ import ru.yandex.practicum.filmorate.storage.db.dao.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final LikeDao likeDao;
+    private final LikeStorage likeDao;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, MpaDao mpaDao, LikeDao likeDao) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, MpaStorage mpaDao, LikeStorage likeDao) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeDao = likeDao;
@@ -32,6 +31,9 @@ public class FilmService {
     public Film create(Film film) {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Date is not valid");
+        }
+        if (filmStorage.tableElementsExist("genres") || filmStorage.tableElementsExist("mpa")) {
+            throw new NotFoundException("Data not found");
         }
         Film newFilm = filmStorage.create(film);
         return newFilm;
