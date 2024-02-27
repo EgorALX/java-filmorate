@@ -27,6 +27,4 @@ public interface UserStorage {
     Friendship getFriendship(Long userId, Long friendId);
 
     boolean isFriendship(Long userId, Long friendId);
-
-    boolean containsInBD(Long id);
 }

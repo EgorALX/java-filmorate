@@ -76,12 +76,8 @@ public class FilmService {
     }
 
     public void deleteLikeOnFilm(Long id, Long userId) {
-        if (getById(id) == null) {
-            throw new NotFoundException("Film not found");
-        }
-        if (!userStorage.containsInBD(userId)) {
-            throw new NotFoundException("User not found");
-        }
+        getById(id);
+        getById(userId);
         likeDao.deleteLikeOnFilm(id, userId);
     }
 }

@@ -80,18 +80,6 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean containsInBD(Long id) {
-        try {
-            Optional<User> user = getById(id);
-            log.trace("User {} found", user);
-            return true;
-        } catch (EmptyResultDataAccessException exception) {
-            log.trace("User with id {} not found", id);
-            return false;
-        }
-    }
-
-    @Override
     public void putNewFriend(Long id, Long userId, boolean isFriend) {
         jdbcTemplate.update("INSERT INTO friends (user_id, friend_id, is_friend)" +
                 " VALUES(?, ?, ?)", id, userId, isFriend);
