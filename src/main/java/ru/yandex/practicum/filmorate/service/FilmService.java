@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.db.dao.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,14 +20,12 @@ import java.util.Optional;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final MpaDao mpaDao;
     private final LikeDao likeDao;
 
     @Autowired
     public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, MpaDao mpaDao, LikeDao likeDao) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.mpaDao = mpaDao;
         this.likeDao = likeDao;
     }
 
@@ -76,12 +73,8 @@ public class FilmService {
     }
 
     public void deleteLikeOnFilm(Long id, Long userId) {
-        if (getById(id) == null) {
-            throw new NotFoundException("Film not found");
-        }
-        if (!userStorage.containsInBD(userId)) {
-            throw new NotFoundException("User not found");
-        }
+        getById(id);
+        getById(userId);
         likeDao.deleteLikeOnFilm(id, userId);
     }
 }

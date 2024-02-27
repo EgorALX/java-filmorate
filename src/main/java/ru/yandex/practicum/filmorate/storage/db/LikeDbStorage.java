@@ -2,13 +2,10 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.db.dao.LikeDao;
-
-import java.sql.Date;
 
 
 @Slf4j
@@ -17,8 +14,6 @@ import java.sql.Date;
 public class LikeDbStorage implements LikeDao {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void likeOnFilm(Long filmId, Long userId) {

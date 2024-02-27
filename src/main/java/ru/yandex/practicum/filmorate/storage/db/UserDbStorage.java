@@ -5,11 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Friendship;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.db.mappers.FriendshipMapper;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -24,75 +25,77 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
     @Override
     public User create(User user) {
-        jdbcTemplate.update("INSERT INTO users (email, login, name, birthday) "
-                        + "VALUES (?, ?, ?, ?)",
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                Date.valueOf(user.getBirthday()));
-        User createdUser = jdbcTemplate.queryForObject(
-                "SELECT user_id, email, login, name, birthday "
-                        + "FROM users "
-                        + "WHERE email=?", new UserMapper(), user.getEmail());
-        return createdUser;
+        String sql = "INSERT INTO users (email, login, name, birthday) VALUES (:email, :login, :name, :birthday)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", user.getEmail());
+        params.addValue("login", user.getLogin());
+        params.addValue("name", user.getName());
+        params.addValue("birthday",  Date.valueOf(user.getBirthday()));
+        namedParameterJdbcTemplate.update(sql, params);
+
+        String sql1 = "SELECT user_id FROM users WHERE email=:email AND login=:login AND" +
+                " name=:name AND birthday=:birthday";
+        Long id = namedParameterJdbcTemplate.queryForObject(sql1, params, Long.class);
+        user.setId(id);
+        return user;
     }
 
     @Override
     public User update(User user) {
-        jdbcTemplate.update("UPDATE users SET email=?, login=?, name=?, birthday=? "
-                        + "WHERE user_id=?",
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                Date.valueOf(user.getBirthday()),
-                user.getId());
-        User updatedUser = jdbcTemplate.queryForObject(
-                "SELECT user_id, email, login, name, birthday FROM users "
-                        + "WHERE user_id=?", new UserMapper(), user.getId());
-        return updatedUser;
+        getById(user.getId());
+        String sql = "UPDATE users SET email=:email, login=:login, name=:name, birthday=:birthday WHERE user_id=:user_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", user.getEmail());
+        params.addValue("login", user.getLogin());
+        params.addValue("name", user.getName());
+        params.addValue("birthday",  Date.valueOf(user.getBirthday()));
+        params.addValue("user_id", user.getId());
+        namedParameterJdbcTemplate.update(sql, params);
+        return user;
 
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query(
-                "SELECT * FROM users ", new UserMapper());
+        return namedParameterJdbcTemplate.query("SELECT * FROM users ", new UserMapper());
     }
 
     @Override
     public Optional<User> getById(Long id) {
-        return Optional.of(jdbcTemplate.queryForObject(
-                "SELECT * FROM users WHERE user_id=?",
-                new UserMapper(), id));
-    }
-
-    @Override
-    public boolean containsInBD(Long id) {
         try {
-            Optional<User> user = getById(id);
-            log.trace("User {} found", user);
-            return true;
+            String sql = "SELECT * FROM users WHERE user_id=:user_id";
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("user_id", id);
+            User returnedUser = namedParameterJdbcTemplate.queryForObject(sql, params, new UserMapper());
+            return Optional.of(returnedUser);
         } catch (EmptyResultDataAccessException exception) {
-            log.trace("User with id {} not found", id);
-            return false;
+            throw new NotFoundException("Data not found");
         }
     }
 
     @Override
     public void putNewFriend(Long id, Long userId, boolean isFriend) {
-        jdbcTemplate.update("INSERT INTO friends (user_id, friend_id, is_friend)" +
-                " VALUES(?, ?, ?)", id, userId, isFriend);
+        String sql = "INSERT INTO friends (user_id, friend_id, is_friend) VALUES(:user_id, :friend_id, :is_friend)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+        params.addValue("friend_id", userId);
+        params.addValue("is_friend", isFriend);
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
     @Override
     public void removeFriend(Long id, Long userId) {
-        Friendship friendship = jdbcTemplate.queryForObject(
-                "SELECT user_id, friend_id, is_friend FROM friends WHERE user_id=? AND friend_id=?",
-                new FriendshipMapper(), id, userId);
+        String sql = "SELECT is_friend FROM friends WHERE user_id=:user_id AND friend_id=:friend_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+        params.addValue("friend_id", userId);
+        Boolean isFriend = namedParameterJdbcTemplate.queryForObject(sql, params, Boolean.class);
         jdbcTemplate.update("DELETE FROM friends WHERE user_id=? AND friend_id=?", id, userId);
-        if (friendship.getIsFriendship()) {
+        if (isFriend) {
             jdbcTemplate.update("UPDATE friends SET is_friend=false WHERE user_id=? AND friend_id=?",
                     id, userId);
         }
@@ -100,23 +103,25 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getUserFriends(Long id) {
-        List<User> list = jdbcTemplate.query("SELECT u.* FROM users AS u " +
-                        "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
-                        "WHERE f.user_id=?",
-                new UserMapper(), id);
+        String sql = "SELECT u.* FROM users AS u " +
+                "LEFT JOIN friends AS f ON u.user_id=f.friend_id " +
+                "WHERE f.user_id=:user_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+        List<User> list = namedParameterJdbcTemplate.query(sql, params, new UserMapper());
         return list;
     }
 
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
-        List<User> firstUserFriends = jdbcTemplate.query("SELECT u.* FROM users AS u " +
-                        "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
-                        "WHERE f.user_id=? AND f.friend_id",
-                new UserMapper(), id);
-        List<User> secondUserFriends = jdbcTemplate.query("SELECT u.* FROM users AS u " +
-                        "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
-                        "WHERE f.user_id=?",
-                new UserMapper(), otherId);
+        String sql = "SELECT u.* FROM users AS u " +
+                "LEFT OUTER JOIN friends AS f ON u.user_id=f.friend_id " +
+                "WHERE f.user_id=:user_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+        List<User> firstUserFriends = namedParameterJdbcTemplate.query(sql, params, new UserMapper());
+        params.addValue("user_id", otherId);
+        List<User> secondUserFriends = namedParameterJdbcTemplate.query(sql, params, new UserMapper());
         List<User> resultList = secondUserFriends.stream().filter(firstUserFriends::contains)
                 .filter(secondUserFriends::contains)
                 .collect(Collectors.toList());
@@ -124,10 +129,16 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Friendship getFriendship(Long userId, Long friendId) {
-        return jdbcTemplate.queryForObject(
-                "SELECT * FROM friends WHERE user_id=? AND friend_id=?",
-                new FriendshipMapper(), userId, friendId);
+    public void getFriendship(Long userId, Long friendId) {
+        try {
+            String sql = "SELECT is_friend FROM friends WHERE user_id=:user_id AND friend_id=:friend_id";
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("user_id", userId);
+            params.addValue("friend_id", friendId);
+            Boolean isFriends = namedParameterJdbcTemplate.queryForObject(sql, params, Boolean.class);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Data not found");
+        }
     }
 
     @Override
@@ -135,7 +146,7 @@ public class UserDbStorage implements UserStorage {
         try {
             getFriendship(userId, friendId);
             return true;
-        } catch (EmptyResultDataAccessException e) {
+        } catch (NotFoundException e) {
             return false;
         }
     }

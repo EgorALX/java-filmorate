@@ -117,14 +117,6 @@ public class FilmDbStorage implements FilmStorage {
         return sortedFilms;
     }
 
-    @Override
-    public void likeOnFilm(Long id, Long userId) {
-    }
-
-    @Override
-    public void deleteLikeOnFilm(Long id, Long userId) {
-    }
-
     private List<Genre> getGenres(Long filmId) {
         String sql = "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
                 "LEFT JOIN genres AS g ON f.genre_id = g.id" +
