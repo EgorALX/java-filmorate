@@ -39,8 +39,8 @@ public class UserService {
         return userStorage.getAll();
     }
 
-    public Optional<User> getById(Long id) {
-        Optional<User> user = userStorage.getById(id);
+    public User getById(Long id) {
+        User user = userStorage.getById(id).orElseThrow(() -> new NotFoundException("Data not found"));
         return user;
     }
 

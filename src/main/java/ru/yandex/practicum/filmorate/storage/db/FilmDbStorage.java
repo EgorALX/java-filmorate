@@ -50,7 +50,7 @@ public class FilmDbStorage implements FilmStorage {
         long id = namedParameterJdbcTemplate.queryForObject(sql1, params, Integer.class);
         film.setId(id);
         addGenres(id, film.getGenres());
-        film.setMpa(mpaDao.getById(film.getMpa().getId()));
+        film.setMpa(mpaDao.getById(film.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found")));
         film.setGenres(getGenres(id));
         return film;
     }
@@ -72,7 +72,7 @@ public class FilmDbStorage implements FilmStorage {
         params.addValue("film_id", film.getId());
         namedParameterJdbcTemplate.update(sql, params);
         updateGenres(film.getId(), film.getGenres());
-        film.setMpa(mpaDao.getById(film.getMpa().getId()));
+        film.setMpa(mpaDao.getById(film.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found")));
         film.setGenres(getGenres(film.getId()));
         return film;
     }
@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getAll() {
         List<Film> films = namedParameterJdbcTemplate.query("SELECT * FROM films", new FilmMapper());
         for (Film film : films) {
-            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+            film.setMpa(mpaDao.getById(film.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found")));
             film.setGenres(getGenres(film.getId()));
         }
         return films;
@@ -95,7 +95,7 @@ public class FilmDbStorage implements FilmStorage {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue("film_id", id);
             Film returnedFilm = namedParameterJdbcTemplate.queryForObject(sql, params, new FilmMapper());
-            returnedFilm.setMpa(mpaDao.getById(returnedFilm.getMpa().getId()));
+            returnedFilm.setMpa(mpaDao.getById(returnedFilm.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found")));
             returnedFilm.setGenres(getGenres(id));
             return Optional.of(returnedFilm);
         } catch (EmptyResultDataAccessException exception) {
@@ -111,23 +111,23 @@ public class FilmDbStorage implements FilmStorage {
                 " ORDER BY COUNT(l.user_id) DESC" +
                 " LIMIT " + count, new FilmMapper());
         for (Film film : sortedFilms) {
-            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+            film.setMpa(mpaDao.getById(film.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found")));
             film.setGenres(getGenres(film.getId()));
         }
         return sortedFilms;
     }
 
-    private List<Genre> getGenres(Long filmId) {
+    private Set<Genre> getGenres(Long filmId) {
         String sql = "SELECT DISTINCT g.id, g.name FROM film_genres AS f " +
                 "LEFT JOIN genres AS g ON f.genre_id = g.id" +
                 " WHERE f.film_id=:film_id ORDER BY g.id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);
-        List<Genre> genres = namedParameterJdbcTemplate.query(sql, params, new GenreMapper());
+        Set<Genre> genres = new HashSet<>(namedParameterJdbcTemplate.query(sql, params, new GenreMapper()));
         return genres;
     }
 
-    private void addGenres(Long filmId, List<Genre> genres) {
+    private void addGenres(Long filmId, Set<Genre> genres) {
         for (Genre genre : genres) {
             String sql = "INSERT INTO film_genres (film_id, genre_id)" +
                     " VALUES (:film_id, :genre_id)";
@@ -139,7 +139,7 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private void updateGenres(Long filmId, List<Genre> genres) {
+    private void updateGenres(Long filmId, Set<Genre> genres) {
         deleteGenres(filmId);
         addGenres(filmId, genres);
     }

@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,13 +23,13 @@ public class MpaDbStorage implements MpaDao {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public @NotNull Mpa getById(Integer id) {
+    public @NotNull Optional<Mpa> getById(Integer id) {
         try {
             String sql = "SELECT * FROM mpa WHERE id=:id";
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue("id", id);
             Mpa mpa = namedParameterJdbcTemplate.queryForObject(sql, params, new MpaMapper());
-            return mpa;
+            return Optional.of(mpa);
         }  catch (EmptyResultDataAccessException exception) {
             throw new NotFoundException("Data not found");
         }

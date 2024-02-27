@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.db.dao.MpaDao;
 
@@ -18,6 +19,6 @@ public class MpaService {
     }
 
     public Mpa getById(Integer id) {
-        return mpaDao.getById(id);
+        return mpaDao.getById(id).orElseThrow(() -> new NotFoundException("Data not found"));
     }
 }

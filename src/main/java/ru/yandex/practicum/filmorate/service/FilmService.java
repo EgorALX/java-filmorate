@@ -49,8 +49,8 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public Optional<Film> getById(Long id) {
-        Optional<Film> film = filmStorage.getById(id);
+    public Film getById(Long id) {
+        Film film = filmStorage.getById(id).orElseThrow(() -> new NotFoundException("Data not found"));
         return film;
     }
 
