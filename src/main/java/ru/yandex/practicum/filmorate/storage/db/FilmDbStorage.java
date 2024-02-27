@@ -138,6 +138,7 @@ public class FilmDbStorage implements FilmStorage {
             namedParameterJdbcTemplate.update(sql, params);
         }
     }
+
     private void updateGenres(Long filmId, List<Genre> genres) {
         deleteGenres(filmId);
         addGenres(filmId, genres);
