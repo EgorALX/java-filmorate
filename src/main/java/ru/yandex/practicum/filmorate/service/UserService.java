@@ -22,13 +22,11 @@ public class UserService {
         if (user == null) {
             throw new NotFoundException("User = null");
         }
-        user.nameChange();
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        getById(user.getId());
-        user.nameChange();
+        userStorage.getById(user.getId()).orElseThrow(() -> new NotFoundException("Data not found"));
         return userStorage.update(user);
     }
 
@@ -45,8 +43,7 @@ public class UserService {
         // этими медодами проверяю существование пользователей
         getById(id);
         getById(userId);
-        boolean isUsersFriends = true;
-        userStorage.addFriend(id, userId, true);
+        userStorage.addFriend(id, userId);
         return true;
     }
 

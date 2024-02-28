@@ -26,6 +26,7 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
+        user.nameChange();
         String sql = "INSERT INTO users (email, login, name, birthday) VALUES (:email, :login, :name, :birthday)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("email", user.getEmail());
@@ -43,6 +44,7 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
+        user.nameChange();
         String sql = "UPDATE users SET email=:email, login=:login, name=:name, birthday=:birthday WHERE user_id=:user_id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("email", user.getEmail());
@@ -71,29 +73,21 @@ public class DbUserStorage implements UserStorage {
     }
 
     @Override
-    public void addFriend(Long id, Long userId, boolean isFriend) {
-        String sql = "INSERT INTO friends (user_id, friend_id, is_friend) VALUES(:user_id, :friend_id, :is_friend)";
+    public void addFriend(Long id, Long userId) {
+        String sql = "INSERT INTO friends (user_id, friend_id) VALUES(:user_id, :friend_id)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("user_id", id);
         params.addValue("friend_id", userId);
-        params.addValue("is_friend", isFriend);
         namedParameterJdbcTemplate.update(sql, params);
     }
 
     @Override
     public void removeFriend(Long id, Long userId) {
-        String sql = "SELECT is_friend FROM friends WHERE user_id=:user_id AND friend_id=:friend_id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("user_id", id);
         params.addValue("friend_id", userId);
-        Boolean isFriend = namedParameterJdbcTemplate.queryForObject(sql, params, Boolean.class);
         namedParameterJdbcTemplate.update("DELETE FROM friends WHERE user_id=:user_id AND friend_id=:friend_id",
                 params);
-        if (isFriend) {
-            namedParameterJdbcTemplate.update("UPDATE friends SET is_friend=false WHERE user_id=:user_id " +
-                            "AND friend_id=:friend_id",
-                    params);
-        }
     }
 
     @Override
