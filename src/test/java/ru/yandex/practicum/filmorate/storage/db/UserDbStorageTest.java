@@ -25,7 +25,7 @@ class UserDbStorageTest {
     public void create() {
         User newUser = new User(1L, "user@email.ru", "vanya123",
                 "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        UserDbStorage userStorage = new UserDbStorage(namedParameterJdbcTemplate);
+        DbUserStorage userStorage = new DbUserStorage(namedParameterJdbcTemplate);
         userStorage.create(newUser);
 
         Optional<User> savedUser = userStorage.getById(1L);
@@ -38,7 +38,7 @@ class UserDbStorageTest {
 
     @Test
     public void getByIdInvalid() {
-        UserDbStorage userStorage = new UserDbStorage(namedParameterJdbcTemplate);
+        DbUserStorage userStorage = new DbUserStorage(namedParameterJdbcTemplate);
         assertThrows(NotFoundException.class, () -> {
             userStorage.getById(9999L);
         });

@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.storage.db.dao.LikeStorage;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LikeDbStorage implements LikeStorage {
+public class DbLikeStorage implements LikeStorage {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -21,7 +21,6 @@ public class LikeDbStorage implements LikeStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("film_id", filmId);
         params.addValue("user_id", userId);
-
         namedParameterJdbcTemplate.update(sql, params);
     }
 

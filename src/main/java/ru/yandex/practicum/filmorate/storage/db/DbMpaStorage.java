@@ -1,16 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.db.dao.MpaStorage;
-import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 
 import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
@@ -20,7 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class MpaDbStorage implements MpaStorage {
+public class DbMpaStorage implements MpaStorage {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 

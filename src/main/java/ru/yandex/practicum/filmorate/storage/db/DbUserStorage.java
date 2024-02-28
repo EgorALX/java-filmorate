@@ -2,14 +2,12 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component("UserDbStorage")
 @RequiredArgsConstructor
-public class UserDbStorage implements UserStorage {
+public class DbUserStorage implements UserStorage {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -64,15 +62,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> getById(Long id) {
-        try {
-            String sql = "SELECT * FROM users WHERE user_id=:user_id";
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("user_id", id);
-            User returnedUser = namedParameterJdbcTemplate.queryForObject(sql, params, new UserMapper());
-            return Optional.of(returnedUser);
-        } catch (EmptyResultDataAccessException exception) {
-            throw new NotFoundException("Data not found");
-        }
+        String sql = "SELECT * FROM users WHERE user_id=:user_id";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", id);
+        List<User> users = namedParameterJdbcTemplate.query(sql, params, new UserMapper());
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+
     }
 
     @Override

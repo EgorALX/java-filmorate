@@ -2,12 +2,8 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -16,12 +12,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.validation.constraints.NotNull;
-import java.sql.Array;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +23,7 @@ import java.util.*;
 @Slf4j
 @Component("FilmDbStorage")
 @RequiredArgsConstructor
-public class FilmDbStorage implements FilmStorage {
+public class DbFilmStorage implements FilmStorage {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -83,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY f.film_id, g.genreId";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("f.film_id", id);
-        List<Film> films = namedParameterJdbcTemplate.query(sql, params, new OrderDetailsExtractor());
+        List<Film> films = namedParameterJdbcTemplate.query(sql, params, new FilmMapper());
         return films.isEmpty() ? Optional.empty() : Optional.of(films.get(0));
     }
 
@@ -95,7 +88,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN genres AS g ON fg.genre_id=g.genreId " +
                 "lEFT JOIN mpa AS m ON f.mpa_id=m.mpaId " +
                 "GROUP BY f.film_id ORDER BY f.film_id";
-        List<Film> films = namedParameterJdbcTemplate.query(sql, new OrderDetailsExtractor());
+        List<Film> films = namedParameterJdbcTemplate.query(sql, new FilmMapper());
 
         return films;
     }
@@ -113,7 +106,7 @@ public class FilmDbStorage implements FilmStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("count", count);
 
-        List<Film> films = namedParameterJdbcTemplate.query(sql, params, new OrderDetailsExtractor());
+        List<Film> films = namedParameterJdbcTemplate.query(sql, params, new FilmMapper());
         return films;
     }
 
@@ -143,26 +136,7 @@ public class FilmDbStorage implements FilmStorage {
         namedParameterJdbcTemplate.update(sql, params);
     }
 
-    public static class FilmMapper implements RowMapper<Film> {
-        @Override
-        public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Film film = new Film();
-            film.setId(rs.getLong("film_id"));
-            film.setName(rs.getString("name"));
-            film.setDescription(rs.getString("description"));
-            film.setReleaseDate(rs.getDate("release_date").toLocalDate());
-            film.setDuration(rs.getInt("duration"));
-            film.setMpa(new Mpa(rs.getInt("mpaId"), rs.getString("mpaName")));
-            do {
-                if (rs.getInt("genreId" ) != 0) {
-                    film.getGenres().add(new Genre(rs.getInt("genreId"), rs.getString("genreName")));
-                }
-            } while(rs.next());
-            return film;
-        }
-    }
-
-    private static class OrderDetailsExtractor implements ResultSetExtractor<List<Film>> {
+    private static class FilmMapper implements ResultSetExtractor<List<Film>> {
         @Override
         public List<Film> extractData(ResultSet rs) throws SQLException {
             List<Film> orderDetailsList = new ArrayList<>();

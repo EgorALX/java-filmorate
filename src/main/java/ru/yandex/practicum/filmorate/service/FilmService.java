@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.db.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbFilmStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbUserStorage;
 import ru.yandex.practicum.filmorate.storage.db.dao.*;
 
 import java.time.LocalDate;
@@ -22,7 +22,7 @@ public class FilmService {
     private final LikeStorage likeDao;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, MpaStorage mpaDao, LikeStorage likeDao) {
+    public FilmService(DbFilmStorage filmStorage, DbUserStorage userStorage, MpaStorage mpaDao, LikeStorage likeDao) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeDao = likeDao;
