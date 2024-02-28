@@ -101,7 +101,9 @@ public class DbFilmStorageTest {
     public void testCreaeteInvalide() {
         newFilm.setName(null);
         assertNotNull(newFilm);
-        assertThrows(DataIntegrityViolationException.class, () -> {filmStorage.create(newFilm);});
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            filmStorage.create(newFilm);
+        });
     }
 
     @Test
