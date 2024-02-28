@@ -64,7 +64,9 @@ class DbUserStorageTest {
         newUser.setName("Ivan Petrov");
         newUser.setBirthday(LocalDate.of(1000, 1, 1));
         assertNotNull(newUser);
-        assertThrows(DataIntegrityViolationException.class, () -> {userStorage.create(newUser);});
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            userStorage.create(newUser);
+        });
     }
 
     @Test
