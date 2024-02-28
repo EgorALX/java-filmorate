@@ -61,6 +61,7 @@ public class DbFilmStorage implements FilmStorage {
         params.addValue("film_id", film.getId());
         namedParameterJdbcTemplate.update(sql, params);
         updateGenres(film.getId(), film.getGenres());
+        // Я не могу не делать запрос в бд, так как нужно получить объект с мпа и жанрами
         film = getById(film.getId()).orElseThrow(() -> new NotFoundException("Data not found"));
         return film;
     }
