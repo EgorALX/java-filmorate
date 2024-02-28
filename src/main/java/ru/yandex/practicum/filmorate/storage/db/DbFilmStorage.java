@@ -153,7 +153,7 @@ public class DbFilmStorage implements FilmStorage {
                     currentFilm.setMpa(new Mpa(rs.getInt("mpaId"), rs.getString("mpaName")));
                     orderDetailsList.add(currentFilm);
                 }
-                if (rs.getInt("genreId" ) != 0) {
+                if (rs.getInt("genreId") != 0) {
                     currentFilm.getGenres().add(new Genre(rs.getInt("genreId"), rs.getString("genreName")));
                 }
             }
