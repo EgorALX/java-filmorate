@@ -112,12 +112,12 @@ public class DbFilmStorageTest {
         DbLikeStorage likeStorage = new DbLikeStorage(namedParameterJdbcTemplate);
         Film film = filmStorage.create(newFilm);
         assertNotNull(film);
-        newFilm.setName("Chiby");
-        Film Chiby = filmStorage.create(newFilm);
-        assertNotNull(Chiby);
+        newFilm.setName("chiby");
+        Film chiby = filmStorage.create(newFilm);
+        assertNotNull(chiby);
         newFilm.setName("ChibyPart2");
-        Film ChibyPart2 = filmStorage.create(newFilm);
-        assertNotNull(ChibyPart2);
+        Film chibyPart2 = filmStorage.create(newFilm);
+        assertNotNull(chibyPart2);
         User firstUser = new User(1L, "user@email.ru", "vanya123", "Ivan Petrov",
                 LocalDate.of(1990, 1, 1));
         User secondUser = new User(2L, "secondUser@email.ru", "viktor111", "viktor",
@@ -126,8 +126,8 @@ public class DbFilmStorageTest {
         assertNotNull(secondUser, "Null");
         userStorage.create(firstUser);
         userStorage.create(secondUser);
-        likeStorage.likeOnFilm(ChibyPart2.getId(), firstUser.getId());
-        likeStorage.likeOnFilm(ChibyPart2.getId(), secondUser.getId());
+        likeStorage.likeOnFilm(chibyPart2.getId(), firstUser.getId());
+        likeStorage.likeOnFilm(chibyPart2.getId(), secondUser.getId());
         likeStorage.likeOnFilm(film.getId(), firstUser.getId());
         List<Film> popularFilms = filmStorage.getPopular(5);
         assertNotNull(popularFilms);
