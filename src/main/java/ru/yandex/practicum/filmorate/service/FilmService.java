@@ -51,14 +51,14 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        mpaStorage.getById(film.getMpa().getId());
-        List<Genre> genres = genreStorage.getAll();
-        if (genres == null || genres.isEmpty()) {
-            throw new NotFoundException("Data not found");
+        mpaStorage.getById(film.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found"));
+        List<Genre> genres = genreStorage.findByIds(film.getGenres().stream().map(g -> g.getId()).collect(Collectors.toList()));
+        if (genres.size() != film.getGenres().size()) {
+            throw new NotFoundException("Some genres not found");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
-                || (film.getMpa() == null) || (film.getGenres() == null)) {
-            throw new ValidationException("Film release date is invalid");
+                || (film.getMpa() == null)) {
+            throw new ValidationException("Date is not valid");
         }
         filmStorage.getById(film.getId());
         Film newFilm = filmStorage.update(film);

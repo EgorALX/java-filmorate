@@ -8,10 +8,16 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,6 +31,8 @@ public class DbGenreStorageTest {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private DbGenreStorage genreStorage;
+
+    private DbFilmStorage filmStorage;
 
     @BeforeEach
     protected void set() throws IOException {
@@ -79,5 +87,25 @@ public class DbGenreStorageTest {
         assertEquals("Триллер", genreId4.getName());
         assertEquals("Документальный", genreId5.getName());
         assertEquals("Боевик", genreId6.getName());
+    }
+
+    @Test
+    public void testFindByIds() {
+        filmStorage = new DbFilmStorage(namedParameterJdbcTemplate);
+        Film newFilm = new Film();
+        assertNotNull(newFilm);
+        newFilm.setName("filmNameGG");
+        newFilm.setDescription("filAboutSomething");
+        newFilm.setReleaseDate(LocalDate.of(1990, 1, 1));
+        newFilm.setDuration(100);
+        newFilm.setMpa(new Mpa(1, "G"));
+        Set<Genre> genres = new HashSet<>();
+        genres.add(new Genre(2));
+        genres.add(new Genre(3));
+        genres.add(new Genre(5));
+        newFilm.setGenres(genres);
+        filmStorage.create(newFilm);
+        List<Genre> genres1 = genreStorage.findByIds(newFilm.getGenres().stream().map(g -> g.getId()).collect(Collectors.toList()));
+        assertEquals(genres1.size(), newFilm.getGenres().size());
     }
 }
