@@ -32,4 +32,12 @@ public class DbGenreStorage implements GenreStorage {
                 new GenreMapper());
         return list;
     }
+
+    @Override
+    public List<Genre> findByIds(List<Integer> ids) {
+        String sql = "SELECT * FROM genres g WHERE g.genreId IN (:ids)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("ids", ids);
+        return namedParameterJdbcTemplate.query(sql, params, new GenreMapper());
+    }
 }

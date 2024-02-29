@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.db.dao.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,13 +37,13 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        mpaStorage.getById(film.getMpa().getId());
-        List<Genre> genres = genreStorage.getAll();
-        if (genres == null || genres.isEmpty()) {
-            throw new NotFoundException("Data not found");
+        mpaStorage.getById(film.getMpa().getId()).orElseThrow(() -> new NotFoundException("Data not found"));
+        List<Genre> genres = genreStorage.findByIds(film.getGenres().stream().map(g -> g.getId()).collect(Collectors.toList()));
+        if (genres.size() != film.getGenres().size()) {
+            throw new NotFoundException("Some genres not found");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
-                || (film.getMpa() == null) || (film.getGenres() == null)) {
+                || (film.getMpa() == null)) {
             throw new ValidationException("Date is not valid");
         }
         Film newFilm = filmStorage.create(film);
