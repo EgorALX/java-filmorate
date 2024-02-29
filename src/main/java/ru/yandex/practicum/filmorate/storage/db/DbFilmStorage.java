@@ -14,11 +14,15 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.yandex.practicum.filmorate.storage.db.mappers.GenreMapper;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component("FilmDbStorage")
@@ -37,10 +41,8 @@ public class DbFilmStorage implements FilmStorage {
         params.addValue("release_date",Date.valueOf(film.getReleaseDate()));
         params.addValue("duration",  film.getDuration());
         params.addValue("mpa_id", film.getMpa().getId());
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(sql, params, keyHolder);
-
         long id = keyHolder.getKey().longValue();
         film.setId(id);
         addGenres(id, film.getGenres());
@@ -59,10 +61,20 @@ public class DbFilmStorage implements FilmStorage {
         params.addValue("duration",  film.getDuration());
         params.addValue("mpa_id", film.getMpa().getId());
         params.addValue("film_id", film.getId());
-        namedParameterJdbcTemplate.update(sql, params);
+        Integer strCont = namedParameterJdbcTemplate.update(sql, params);
+        if (strCont == 0) {
+            throw new NotFoundException("Data not found");
+        }
         updateGenres(film.getId(), film.getGenres());
-        // Я не могу не делать запрос в бд, так как нужно получить объект с мпа и жанрами
-        film = getById(film.getId()).orElseThrow(() -> new NotFoundException("Data not found"));
+        String sql2 = "SELECT g.genreId, g.genreName FROM genres AS g " +
+                "LEFT JOIN film_genres AS fg ON g.genreId=fg.genre_id " +
+                "WHERE fg.film_id=:fg.film_id";
+        MapSqlParameterSource params2 = new MapSqlParameterSource();
+        params2.addValue("fg.film_id", film.getId());
+        Set<Genre> genres = (namedParameterJdbcTemplate.query(sql2, params2, new GenreMapper())).stream()
+                .sorted((Comparator.comparingInt(Genre::getId)))
+                .collect(Collectors.toSet());
+        film.setGenres(genres);
         return film;
     }
 

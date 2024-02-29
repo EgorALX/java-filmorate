@@ -44,7 +44,6 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        user.nameChange();
         String sql = "UPDATE users SET email=:email, login=:login, name=:name, birthday=:birthday WHERE user_id=:user_id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("email", user.getEmail());

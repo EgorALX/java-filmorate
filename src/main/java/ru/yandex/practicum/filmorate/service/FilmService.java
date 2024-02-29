@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.db.DbFilmStorage;
 import ru.yandex.practicum.filmorate.storage.db.DbUserStorage;
@@ -19,16 +20,26 @@ import java.util.List;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final LikeStorage likeDao;
+    private final MpaStorage mpaStorage;
+    private final LikeStorage likeStorage;
+    private final GenreStorage genreStorage;
+
 
     @Autowired
-    public FilmService(DbFilmStorage filmStorage, DbUserStorage userStorage, MpaStorage mpaDao, LikeStorage likeDao) {
+    public FilmService(DbFilmStorage filmStorage, DbUserStorage userStorage, MpaStorage mpaStorage,
+                       LikeStorage likeStorage, GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.likeDao = likeDao;
+        this.likeStorage = likeStorage;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Film create(Film film) {
+        mpaStorage.getById(film.getMpa().getId());
+        for (Genre genre: film.getGenres()) {
+            genreStorage.getById(genre.getId());
+        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
                 || (film.getMpa() == null) || (film.getGenres() == null)) {
             throw new ValidationException("Date is not valid");
@@ -38,6 +49,10 @@ public class FilmService {
     }
 
     public Film update(Film film) {
+        mpaStorage.getById(film.getMpa().getId());
+        for (Genre genre: film.getGenres()) {
+            genreStorage.getById(genre.getId());
+        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
                 || (film.getMpa() == null) || (film.getGenres() == null)) {
             throw new ValidationException("Film release date is invalid");
@@ -71,12 +86,12 @@ public class FilmService {
         if (userStorage.getById(userId) == null) {
             throw new NotFoundException("User not found");
         }
-        likeDao.likeOnFilm(id, userId);
+        likeStorage.likeOnFilm(id, userId);
     }
 
     public void deleteLikeOnFilm(Long id, Long userId) {
         getById(id);
         getById(userId);
-        likeDao.deleteLikeOnFilm(id, userId);
+        likeStorage.deleteLikeOnFilm(id, userId);
     }
 }

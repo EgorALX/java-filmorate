@@ -22,10 +22,15 @@ public class UserService {
         if (user == null) {
             throw new NotFoundException("User = null");
         }
+        user.nameChange();
         return userStorage.create(user);
     }
 
     public User update(User user) {
+        if (user == null) {
+            throw new NotFoundException("User = null");
+        }
+        user.nameChange();
         userStorage.getById(user.getId()).orElseThrow(() -> new NotFoundException("Data not found"));
         return userStorage.update(user);
     }
