@@ -38,7 +38,7 @@ public class FilmService {
     public Film create(Film film) {
         mpaStorage.getById(film.getMpa().getId());
         List<Genre> genres = genreStorage.getAll();
-        if (genres == null ||genres.isEmpty()) {
+        if (genres == null || genres.isEmpty()) {
             throw new NotFoundException("Data not found");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
