@@ -61,6 +61,7 @@ public class DbFilmStorage implements FilmStorage {
         if (strCont == 0) {
             throw new NotFoundException("Data not found");
         }
+        updateGenres(film.getId(), film.getGenres());
         return film;
     }
 
