@@ -37,8 +37,9 @@ public class FilmService {
 
     public Film create(Film film) {
         mpaStorage.getById(film.getMpa().getId());
-        for (Genre genre: film.getGenres()) {
-            genreStorage.getById(genre.getId());
+        List<Genre> genres = genreStorage.getAll();
+        if (genres == null ||genres.isEmpty()) {
+            throw new NotFoundException("Data not found");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
                 || (film.getMpa() == null) || (film.getGenres() == null)) {
@@ -50,8 +51,9 @@ public class FilmService {
 
     public Film update(Film film) {
         mpaStorage.getById(film.getMpa().getId());
-        for (Genre genre: film.getGenres()) {
-            genreStorage.getById(genre.getId());
+        List<Genre> genres = genreStorage.getAll();
+        if (genres == null ||genres.isEmpty()) {
+            throw new NotFoundException("Data not found");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
                 || (film.getMpa() == null) || (film.getGenres() == null)) {

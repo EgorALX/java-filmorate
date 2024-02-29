@@ -74,7 +74,9 @@ public class DbFilmStorageTest {
         film1.setMpa(new Mpa(1, "G"));
         assertNotNull(film1);
         assertEquals(film, filmStorage.getById(1L).orElseThrow(() -> new NotFoundException("Data not found")));
+
         filmStorage.update(film1);
+
         assertEquals(film1, filmStorage.getById(1L).orElseThrow(() -> new NotFoundException("Data not found")));
         assertThrows(NotFoundException.class, () -> {
             filmStorage.getById(9999L).orElseThrow(() -> new NotFoundException("Data not found"));
