@@ -62,11 +62,6 @@ public class DbFilmStorage implements FilmStorage {
             throw new NotFoundException("Data not found");
         }
         updateGenres(film.getId(), film.getGenres());
-
-        List<Genre> list = new ArrayList<>(film.getGenres());
-        Collections.reverse(list);
-        film.setGenres(new LinkedHashSet<>(list));
-
         return film;
     }
 
