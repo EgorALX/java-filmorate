@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,7 +100,7 @@ public class DbGenreStorageTest {
         newFilm.setReleaseDate(LocalDate.of(1990, 1, 1));
         newFilm.setDuration(100);
         newFilm.setMpa(new Mpa(1, "G"));
-        Set<Genre> genres = new HashSet<>();
+        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
         genres.add(new Genre(2));
         genres.add(new Genre(3));
         genres.add(new Genre(5));
