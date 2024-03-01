@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -29,6 +30,9 @@ public class UserController {
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
+        if (user == null || user.getId() == null) {
+            throw new ValidationException("User not found");
+        }
         log.info("Updating user {}", user);
         return userService.update(user);
     }
@@ -47,9 +51,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Boolean putNewFriend(@PathVariable Long id, @PathVariable Long friendId) {
+    public Boolean addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Putting friend {} to user {}", friendId, id);
-        userService.putNewFriend(id, friendId);
+        userService.addFriend(id, friendId);
         return true;
     }
 
@@ -73,4 +77,5 @@ public class UserController {
         List<User> commonFriends = userService.getCommonFriends(id, otherId);
         return commonFriends;
     }
+
 }

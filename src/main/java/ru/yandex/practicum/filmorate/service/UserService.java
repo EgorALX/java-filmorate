@@ -1,68 +1,73 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbUserStorage;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
-    private final UserStorage storage;
+    private final UserStorage userStorage;
+
+    @Autowired
+    public UserService(DbUserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public User create(User user) {
         if (user == null) {
             throw new NotFoundException("User = null");
         }
-        return storage.create(user);
+        user.nameChange();
+        return userStorage.create(user);
     }
 
     public User update(User user) {
-        if (user.getId() == null || storage.getById(user.getId()) == null) {
-            throw new NotFoundException("User not found");
+        if (user == null) {
+            throw new NotFoundException("User = null");
         }
         user.nameChange();
-        return storage.update(user);
+        userStorage.getById(user.getId()).orElseThrow(() -> new NotFoundException("Data not found"));
+        return userStorage.update(user);
     }
 
     public List<User> getAll() {
-        return storage.getAll();
+        return userStorage.getAll();
     }
 
     public User getById(Long id) {
-        User user = storage.getById(id);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
+        User user = userStorage.getById(id).orElseThrow(() -> new NotFoundException("Data not found"));
         return user;
     }
 
-    public Boolean putNewFriend(Long id, Long userId) {
-        if ((storage.getById(userId) == null) || (storage.getById(id) == null)) {
-            throw new NotFoundException("User not found");
-        }
-        storage.putNewFriend(id, userId);
+    public Boolean addFriend(Long id, Long userId) {
+        // этими медодами проверяю существование пользователей
+        getById(id);
+        getById(userId);
+        userStorage.addFriend(id, userId);
         return true;
     }
 
     public void deleteFriend(Long id, Long userId) {
-        if ((storage.getById(id) == null) || (storage.getById(userId) == null)) {
+        if ((userStorage.getById(id) == null) || (userStorage.getById(userId) == null)) {
             throw new NotFoundException("User not found");
         }
-        storage.deleteFriend(id, userId);
+        userStorage.removeFriend(id, userId);
     }
 
     public List<User> getUserFriends(Long id) {
-        if (storage.getById(id) == null) {
+        if (userStorage.getById(id) == null) {
             throw new NotFoundException("User not found");
         }
-        return storage.getUserFriends(id);
+        List<User> friends = userStorage.getFriends(id);
+        return friends;
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        return storage.getCommonFriends(id, otherId);
+        return userStorage.getCommonFriends(id, otherId);
     }
 }

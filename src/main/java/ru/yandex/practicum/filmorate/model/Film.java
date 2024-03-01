@@ -1,14 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
-@Builder
+@SuperBuilder
+@NoArgsConstructor
 public class Film {
+
     private Long id;
 
     @NotBlank
@@ -23,4 +27,11 @@ public class Film {
     @Positive
     @Min(1)
     private int duration;
+
+    @NotNull
+    private Mpa mpa;
+
+    @NotNull
+    @Builder.Default
+    private LinkedHashSet<@NotNull Genre> genres = new LinkedHashSet<>();
 }
